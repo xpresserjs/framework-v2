@@ -1,7 +1,7 @@
 /**
  * Initialize Main
  */
-import { Config } from "./types";
+import { Config } from "./types/configs";
 import { Xpresser } from "./xpresser";
 
 /**

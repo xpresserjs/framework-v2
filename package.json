@@ -2,7 +2,7 @@
   "name": "@xpresser/framework",
   "version": "0.0.1",
   "description": "Xpresser v2 Core",
-  "main": "src/index.js",
+  "main": "dist/src/main.js",
   "repository": "https://github.com/xpresserjs/framework-v2",
   "author": "xpresserjs",
   "license": "MIT",
@@ -11,7 +11,8 @@
     "watch": "npx tsc --watch",
     "build": "npx tsc",
     "dev": "npx tsnd --respawn dev/test.ts",
-    "js:dev": "npx nodemon dist/dev/test.js"
+    "js:dev": "npx nodemon dist/dev/test.js",
+    "esm": "npx tsup ./src/main.ts --format esm"
   },
   "devDependencies": {
     "@types/node": "^17.0.41",
