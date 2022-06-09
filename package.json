@@ -1,0 +1,20 @@
+{
+  "name": "@xpresser/framework",
+  "version": "0.0.1",
+  "description": "Xpresser v2 Core",
+  "main": "src/index.js",
+  "repository": "https://github.com/xpresserjs/framework-v2",
+  "author": "xpresserjs",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "watch": "npx tsc --watch",
+    "build": "npx tsc"
+  },
+  "devDependencies": {
+    "prettier": "^2.6.2",
+    "ts-node": "^10.8.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^4.7.3"
+  }
+}
