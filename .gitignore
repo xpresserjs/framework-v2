@@ -5,3 +5,7 @@ dev
 
 yarn.lock
 *.log
+
+# TS
+*.js
+*.d.ts

@@ -9,12 +9,20 @@
   "private": false,
   "scripts": {
     "watch": "npx tsc --watch",
-    "build": "npx tsc"
+    "build": "npx tsc",
+    "dev": "npx tsnd --respawn dev/test.ts",
+    "js:dev": "npx nodemon dist/dev/test.js"
   },
   "devDependencies": {
+    "@types/node": "^17.0.41",
+    "nodemon": "^2.0.16",
     "prettier": "^2.6.2",
     "ts-node": "^10.8.1",
     "ts-node-dev": "^2.0.0",
+    "tsup": "^6.1.0",
     "typescript": "^4.7.3"
+  },
+  "dependencies": {
+    "object-collection": "^3.0.1"
   }
 }
