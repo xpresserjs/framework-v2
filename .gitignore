@@ -2,6 +2,7 @@ node_modules
 .idea
 .vscode
 dev
+dist
 
 yarn.lock
 *.log
