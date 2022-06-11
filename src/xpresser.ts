@@ -4,8 +4,24 @@ import type { Config, Options } from "./types/configs.js";
 import File from "./engines/File.js";
 import { __dirname } from "./functions/path.js";
 import Console from "./engines/Console.js";
+import InitializeBootCycle, {
+    BootCycleFunction,
+    BootCycles,
+    XpresserOn
+} from "./engines/BootCycle.js";
 
 export class Xpresser {
+    /**
+     * Options
+     */
+    public options: Options = {
+        requireOnly: false,
+        autoBoot: false,
+        isConsole: false,
+        isTinker: false,
+        isFromXjsCli: false
+    };
+
     /**
      * Config Collection
      */
@@ -27,15 +43,23 @@ export class Xpresser {
     console: Console;
 
     /**
-     * Options
+     * Boot Cycles
      */
-    public options: Options = {
-        requireOnly: false,
-        autoBoot: false,
-        isConsole: false,
-        isTinker: false,
-        isFromXjsCli: false
+    private bootCycles: Record<BootCycles, any[]> = {
+        start: [],
+        boot: [],
+        expressInit: [],
+        serverInit: [],
+        bootServer: [],
+        http: [],
+        https: [],
+        serverBooted: []
     };
+
+    /**
+     * Boot Cycle Functions
+     */
+    readonly on: XpresserOn = {} as XpresserOn;
 
     /**
      * Initialize new xpresser instance
@@ -54,6 +78,9 @@ export class Xpresser {
 
         // Initialize Console
         this.console = new Console(this);
+
+        // Initialize Boot Cycle Functions
+        InitializeBootCycle(this);
     }
 
     /**
@@ -92,6 +119,33 @@ export class Xpresser {
             path: packageDotJsonPath,
             data: packageDotJson
         });
+    }
+
+    /**
+     * Get list of all boot cycles.
+     * Since `bootCycles` is a private property,
+     * This method is used to get the list of all boot cycles.
+     * Preventing from modifying the `bootCycles` property.
+     */
+    getBootCycles(): BootCycles[] {
+        return Object.keys(this.bootCycles) as BootCycles[];
+    }
+
+    /**
+     * addBootCycle - Short Hand Function
+     * Adds an event to a given key.
+     * @param name
+     * @param functions
+     * @constructor
+     */
+    addBootCycle(name: BootCycles, functions: BootCycleFunction | BootCycleFunction[]) {
+        if (Array.isArray(functions)) {
+            for (const fn of functions) {
+                this.bootCycles[name].push(functions);
+            }
+        } else {
+            this.bootCycles[name].push(functions);
+        }
     }
 
     /**
