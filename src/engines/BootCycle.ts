@@ -22,6 +22,7 @@ export type XpresserOn = Record<BootCycles, (todo: BootCycleFunction) => any>;
  */
 export default function InitializeBootCycle($: Xpresser) {
     // loop through all boot cycles
+    // and add them to the `$.on` object
     for (const cycle of $.getBootCycles()) {
         $.on[cycle] = (todo) => $.addBootCycle(cycle, todo);
     }
