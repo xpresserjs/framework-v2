@@ -1,8 +1,8 @@
 /**
  * Initialize Main
  */
-import { Config } from "./types/configs";
-import { Xpresser } from "./xpresser";
+import type { Config } from "./types/configs.js";
+import { Xpresser } from "./xpresser.js";
 
 /**
  * ShortHand Initialize Xpresser Function

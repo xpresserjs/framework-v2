@@ -22,4 +22,10 @@ export interface Config {
     };
 }
 
-export interface Options {}
+export interface Options {
+    requireOnly: boolean;
+    autoBoot: boolean;
+    isConsole: boolean;
+    isTinker: boolean;
+    isFromXjsCli: boolean;
+}
