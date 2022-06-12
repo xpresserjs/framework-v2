@@ -1,17 +1,18 @@
 import PATH from "node:path";
 import { ObjectCollection } from "object-collection";
-import type { Config, Options } from "./types/configs.js";
+import Config from "./types/configs.js";
 import File from "./engines/File.js";
 import { __dirname } from "./functions/path.js";
 import Console from "./engines/Console.js";
-import InitializeBootCycle, { XpresserBootCycle as BootCycle } from "./engines/BootCycle.js";
+import InitializeBootCycle, { BootCycle } from "./engines/BootCycle.js";
 import type BaseEngine from "./engines/BaseEngine.js";
+import { DefaultConfig } from "./config.js";
 
 export class Xpresser {
     /**
      * Options
      */
-    public readonly options: Options = {
+    public readonly options: Config.Options = {
         requireOnly: false,
         autoBoot: false,
         isConsole: false,
@@ -22,7 +23,7 @@ export class Xpresser {
     /**
      * Config Collection
      */
-    public readonly config: ObjectCollection<Config>;
+    public readonly config: ObjectCollection<Config.Main>;
 
     /**
      * Engine Memory Store
@@ -63,9 +64,9 @@ export class Xpresser {
      * @param config
      * @param options
      */
-    constructor(config: Config, options?: Partial<Options>) {
+    constructor(config: Config.InitConfig, options?: Partial<Config.Options>) {
         // Initialize Config as object-collection type.
-        this.config = new ObjectCollection<Config>(config);
+        this.config = new ObjectCollection(config as Config.Main).merge(DefaultConfig);
 
         // Update Options
         this.updateOptions(options);
@@ -92,7 +93,7 @@ export class Xpresser {
      * Update Xpresser Options
      * @param options
      */
-    updateOptions(options: Partial<Options> = {}) {
+    updateOptions(options: Partial<Config.Options> = {}) {
         Object.assign(this.options, options);
         return this;
     }
@@ -137,19 +138,32 @@ export class Xpresser {
     }
 
     /**
-     * addBootCycle - Short Hand Function
-     * Adds an event to a given key.
-     * @param name
+     * Get Boot Cycle Stats
+     * Returns the statistics of the current boot cycle
+     *
+     */
+    getBootCyclesStats() {
+        const stats = {} as Record<BootCycle.Keys, number>;
+        for (const key of Object.keys(this.bootCycles) as BootCycle.Keys[]) {
+            stats[key] = this.bootCycles[key].length;
+        }
+
+        return stats;
+    }
+
+    /**
+     * Adds a cycle to a boot cycle
+     * @param cycle
      * @param functions
      * @constructor
      */
-    addBootCycle(name: BootCycle.Keys, functions: BootCycle.Func | BootCycle.Func[]) {
+    addToBootCycle(cycle: BootCycle.Keys, functions: BootCycle.Func | BootCycle.Func[]) {
         if (Array.isArray(functions)) {
             for (const fn of functions) {
-                this.bootCycles[name].push(fn);
+                this.bootCycles[cycle].push(fn);
             }
         } else {
-            this.bootCycles[name].push(functions);
+            this.bootCycles[cycle].push(functions);
         }
 
         return this;

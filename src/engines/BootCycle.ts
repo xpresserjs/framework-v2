@@ -1,6 +1,6 @@
 import type { Xpresser } from "../xpresser.js";
 
-export declare module XpresserBootCycle {
+export declare module BootCycle {
     export type Func = (next: () => void, $: Xpresser) => any;
     export type DefaultKeys =
         | "start"
@@ -14,7 +14,9 @@ export declare module XpresserBootCycle {
 
     // Make use of interface to make it extensible
     export interface DefaultCycles extends Record<string, Func[]> {}
+
     export interface CustomCycles extends Record<DefaultKeys, Func[]> {}
+
     export type Keys = keyof CustomCycles;
     export type On = Record<Keys, (todo: Func) => On>;
 }
@@ -31,11 +33,25 @@ export default function InitializeBootCycle($: Xpresser) {
     for (const cycle of $.getBootCycles()) {
         if (!$.on[cycle]) {
             $.on[cycle] = (todo) => {
-                $.addBootCycle(cycle, todo);
-
+                $.addToBootCycle(cycle, todo);
                 // This is returned to allow chaining
                 return $.on;
             };
         }
     }
+}
+
+/**
+ * Define Cycle Function
+ * Only provides types.
+ */
+export function BootCycleFunction(fn: BootCycle.Func, name?: string) {
+    // Provide a name for the function
+    // This is important because the name will be used
+    // to log errors
+    if (name) {
+        Object.defineProperty(fn, "name", { value: name });
+    }
+
+    return fn;
 }
