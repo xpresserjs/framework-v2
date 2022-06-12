@@ -18,7 +18,7 @@ $.on.start((next) => {
 });
 
 // Start the application
-$.start();
+$.start().catch($.console.logError);
 ```
 
 `$` becomes a fully extensible framework that can be use for either

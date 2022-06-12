@@ -185,8 +185,10 @@ export class Xpresser {
      * @deprecated
      */
     boot() {
-        return this.start();
+        this.start().finally(() => {
+            // do nothing
+        });
     }
 
-    start() {}
+    async start() {}
 }
