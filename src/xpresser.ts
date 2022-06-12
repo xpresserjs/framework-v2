@@ -4,18 +4,14 @@ import type { Config, Options } from "./types/configs.js";
 import File from "./engines/File.js";
 import { __dirname } from "./functions/path.js";
 import Console from "./engines/Console.js";
-import InitializeBootCycle, {
-    BootCycleFunction,
-    BootCycles,
-    XpresserOn
-} from "./engines/BootCycle.js";
+import InitializeBootCycle, { XpresserBootCycle as BootCycle } from "./engines/BootCycle.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 
 export class Xpresser {
     /**
      * Options
      */
-    public options: Options = {
+    public readonly options: Options = {
         requireOnly: false,
         autoBoot: false,
         isConsole: false,
@@ -26,27 +22,27 @@ export class Xpresser {
     /**
      * Config Collection
      */
-    public config: ObjectCollection<Config>;
+    public readonly config: ObjectCollection<Config>;
 
     /**
      * Engine Memory Store
      */
-    public engineData: ObjectCollection<any> = new ObjectCollection();
+    public readonly engineData: ObjectCollection<any> = new ObjectCollection();
 
     /**
      * Store
      */
-    public store: ObjectCollection<any> = new ObjectCollection();
+    public readonly store: ObjectCollection<any> = new ObjectCollection();
 
     /**
      * Console
      */
-    console: Console;
+    readonly console: Console;
 
     /**
-     * Boot Cycles
+     * Default Boot Cycles
      */
-    private bootCycles: Record<BootCycles, any[]> = {
+    private readonly bootCycles: BootCycle.DefaultCycles = {
         start: [],
         boot: [],
         expressInit: [],
@@ -60,7 +56,7 @@ export class Xpresser {
     /**
      * Boot Cycle Functions
      */
-    readonly on: XpresserOn = {} as XpresserOn;
+    readonly on: BootCycle.On = {} as BootCycle.On;
 
     /**
      * Initialize new xpresser instance
@@ -97,10 +93,8 @@ export class Xpresser {
      * @param options
      */
     updateOptions(options: Partial<Options> = {}) {
-        this.options = {
-            ...this.options,
-            ...options
-        };
+        Object.assign(this.options, options);
+        return this;
     }
 
     /**
@@ -128,6 +122,8 @@ export class Xpresser {
             path: packageDotJsonPath,
             data: packageDotJson
         });
+
+        return this;
     }
 
     /**
@@ -136,8 +132,8 @@ export class Xpresser {
      * This method is used to get the list of all boot cycles.
      * Preventing from modifying the `bootCycles` property.
      */
-    getBootCycles(): BootCycles[] {
-        return Object.keys(this.bootCycles) as BootCycles[];
+    getBootCycles(): BootCycle.Keys[] {
+        return Object.keys(this.bootCycles) as BootCycle.Keys[];
     }
 
     /**
@@ -147,14 +143,16 @@ export class Xpresser {
      * @param functions
      * @constructor
      */
-    addBootCycle(name: BootCycles, functions: BootCycleFunction | BootCycleFunction[]) {
+    addBootCycle(name: BootCycle.Keys, functions: BootCycle.Func | BootCycle.Func[]) {
         if (Array.isArray(functions)) {
             for (const fn of functions) {
-                this.bootCycles[name].push(functions);
+                this.bootCycles[name].push(fn);
             }
         } else {
             this.bootCycles[name].push(functions);
         }
+
+        return this;
     }
 
     /**
@@ -188,7 +186,14 @@ export class Xpresser {
         this.start().finally(() => {
             // do nothing
         });
+
+        return this;
     }
 
-    async start() {}
+    /**
+     * Start the application
+     */
+    async start() {
+        return this;
+    }
 }
