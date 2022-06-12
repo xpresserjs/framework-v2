@@ -2,20 +2,9 @@ import os from "node:os";
 import chalk from "chalk";
 import { touchMyMustache } from "../functions/inbuilt.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import type { Xpresser } from "../xpresser.js";
+import BaseEngine from "./BaseEngine.js";
 
-export default class Console {
-    private $: Xpresser;
-
-    /**
-     * Constructor
-     * @param $
-     */
-    constructor($: Xpresser) {
-        // Initialize xpresser instance.
-        this.$ = $;
-    }
-
+export default class Console extends BaseEngine {
     /**
      * Logs a message to the console.
      * @param args

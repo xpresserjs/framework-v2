@@ -9,6 +9,7 @@ import InitializeBootCycle, {
     BootCycles,
     XpresserOn
 } from "./engines/BootCycle.js";
+import type BaseEngine from "./engines/BaseEngine.js";
 
 export class Xpresser {
     /**
@@ -76,11 +77,19 @@ export class Xpresser {
         // Load xpresser's Package.json file
         this.loadPackageDotJsonFile();
 
-        // Initialize Console
-        this.console = new Console(this);
-
         // Initialize Boot Cycle Functions
         InitializeBootCycle(this);
+
+        // Initialize Console
+        this.console = new Console(this);
+    }
+
+    /**
+     * Equips any xpresser engine with the current xpresser instance
+     * @param engine
+     */
+    engine<Engine extends typeof BaseEngine>(engine: Engine) {
+        return engine.use<Engine>(this);
     }
 
     /**
@@ -166,4 +175,18 @@ export class Xpresser {
     exit(...args: any[]) {
         return process.exit(...args);
     }
+
+    /**
+     * Same as `$.start`
+     * @description
+     * Boot has been renamed to `start`
+     * This is because  `start` is the first boot cycle
+     * So it makes sense to call it `start`
+     * @deprecated
+     */
+    boot() {
+        return this.start();
+    }
+
+    start() {}
 }
