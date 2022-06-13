@@ -24,7 +24,7 @@ $.start().catch($.console.logError);
 `$` becomes a fully extensible framework that can be use for either
 
 - Server Requests - Server Part of the Framework
-- Console Requests - Cli Part of the Framework
+- ConsoleEngine Requests - Cli Part of the Framework
 
 For example
 

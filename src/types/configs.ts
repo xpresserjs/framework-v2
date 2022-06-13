@@ -54,7 +54,7 @@ declare module Config {
         /**
          * Server Port for http connections
          */
-        port: 2000;
+        port: number;
 
         /**
          * Url protocol (http|https)
@@ -242,6 +242,7 @@ declare module Config {
      */
     export type InitConfig = Partial<Omit<Main, "env" | "paths">> & {
         env: string;
+
         paths: Partial<Paths> & {
             base: string;
         };

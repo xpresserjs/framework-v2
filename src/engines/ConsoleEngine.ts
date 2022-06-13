@@ -4,7 +4,7 @@ import { touchMyMustache } from "../functions/inbuilt.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseEngine from "./BaseEngine.js";
 
-export default class Console extends BaseEngine {
+export default class ConsoleEngine extends BaseEngine {
     /**
      * Logs a message to the console.
      * @param args

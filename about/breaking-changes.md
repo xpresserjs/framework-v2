@@ -18,7 +18,7 @@ So many properties of the old `$` have been moved to various files and functions
 So it makes sense to call it `start`
 
 
-### Console log functions
+### ConsoleEngine log functions
 All log functions have been moved to `$.console`
 
 For example:
@@ -36,4 +36,17 @@ $.console.logError()
 $.console.logWarning()
 $.console.logInfo()
 $.console.logSuccess()
+```
+
+### $.base64
+This is no longer available in the `$` variable.
+It has been moved to `xpresser/classes/Base64.js`
+
+```javascript
+// Before
+$.base64.encode()
+
+// Now
+import Base64 from 'xpresser/classes/Base64.js'
+Base64.encode()
 ```

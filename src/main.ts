@@ -7,7 +7,28 @@ import { Xpresser } from "./xpresser.js";
 /**
  * ShortHand Initialize Xpresser Function
  * @param config
+ * @param modules
  */
-export function init(config: Config.InitConfig) {
-    return new Xpresser(config);
+export async function init(
+    config: Config.InitConfig,
+    // register cli and server modules by default
+    modules: Array<"cli" | "server"> = ["cli", "server"]
+): Promise<Xpresser> {
+    const $ = new Xpresser(config);
+
+    /**
+     * Use ConsoleEngine & Server Modules
+     */
+    if (modules.includes("cli")) {
+        await $.modules.useConsoleModule();
+    }
+
+    if (modules.includes("server")) {
+        await $.modules.useServerModule();
+    }
+
+    // Set default module to 'cli'
+    $.modules.setDefault("cli");
+
+    return $;
 }

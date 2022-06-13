@@ -12,7 +12,7 @@
     "watch": "npx tsc --watch",
     "build": "npx tsc",
     "dev:ts": "npx tsnd --respawn --transpile-only --clear dev/test.ts",
-    "dev:js": "npx nodemon dist/dev/test.js"
+    "dev:js": "npx nodemon dist/dev/test.js -- cli"
   },
   "engines": {
     "node": ">=14.16"

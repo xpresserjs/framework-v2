@@ -1,12 +1,14 @@
 import PATH from "node:path";
 import { ObjectCollection } from "object-collection";
-import Config from "./types/configs.js";
-import File from "./engines/File.js";
+import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
-import Console from "./engines/Console.js";
-import InitializeBootCycle, { BootCycle } from "./engines/BootCycle.js";
-import type BaseEngine from "./engines/BaseEngine.js";
+import ConsoleEngine from "./engines/ConsoleEngine.js";
+import InitializeBootCycle, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig } from "./config.js";
+import type Config from "./types/configs.js";
+import type EngineData from "./types/engine-data.js";
+import type BaseEngine from "./engines/BaseEngine.js";
+import ModulesEngine from "./engines/ModulesEngine.js";
 
 export class Xpresser {
     /**
@@ -28,7 +30,7 @@ export class Xpresser {
     /**
      * Engine Memory Store
      */
-    public readonly engineData: ObjectCollection<any> = new ObjectCollection();
+    public readonly engineData: ObjectCollection<EngineData> = new ObjectCollection();
 
     /**
      * Store
@@ -36,9 +38,9 @@ export class Xpresser {
     public readonly store: ObjectCollection<any> = new ObjectCollection();
 
     /**
-     * Console
+     * ConsoleEngine Engine
      */
-    readonly console: Console;
+    readonly console: ConsoleEngine;
 
     /**
      * Default Boot Cycles
@@ -60,6 +62,18 @@ export class Xpresser {
     readonly on: BootCycle.On = {} as BootCycle.On;
 
     /**
+     * Has serves a source of truth for the current environment
+     */
+    readonly has = {
+        registeredModules: false
+    };
+
+    /**
+     * Modules Engine
+     */
+    readonly modules: ModulesEngine;
+
+    /**
      * Initialize new xpresser instance
      * @param config
      * @param options
@@ -77,8 +91,11 @@ export class Xpresser {
         // Initialize Boot Cycle Functions
         InitializeBootCycle(this);
 
-        // Initialize Console
-        this.console = new Console(this);
+        // Initialize ConsoleEngine
+        this.console = new ConsoleEngine(this);
+
+        // Initialize Modules
+        this.modules = new ModulesEngine(this);
     }
 
     /**

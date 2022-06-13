@@ -163,7 +163,7 @@ export const DefaultConfig: Config.Main = {
 
     // Paths Configurations
     paths: {
-        base: __dirname,
+        base: "./",
         // Should be relative to the base set above.
         // e.g base+'/'+backend should resolve to /full/path/base/backend
         backend: "base://backend",
@@ -209,7 +209,7 @@ export const DefaultConfig: Config.Main = {
     //     overrideServerName: true
     // },
 
-    // Artisan/Console Configurations
+    // Artisan/ConsoleEngine Configurations
     // artisan: {
     //     loadEvents: false,
     //     singleModelName: true,
