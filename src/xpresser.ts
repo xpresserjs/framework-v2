@@ -30,7 +30,7 @@ export class Xpresser {
     /**
      * Engine Memory Store
      */
-    public readonly engineData: ObjectCollection<EngineData> = new ObjectCollection();
+    public readonly engineData: ObjectCollection<EngineData.Main> = new ObjectCollection();
 
     /**
      * Store
@@ -187,6 +187,34 @@ export class Xpresser {
     }
 
     /**
+     * Add Boot Cycle
+     * @param cycle
+     */
+    addBootCycle(cycle: BootCycle.Keys): this;
+    /**
+     * Add Multiple Boot Cycles
+     * @param cycles
+     */
+    addBootCycle(cycles: BootCycle.Keys[]): this;
+    addBootCycle(cycles: BootCycle.Keys | BootCycle.Keys[]) {
+        if (typeof cycles === "string") cycles = [cycles];
+
+        for (const cycle of cycles) {
+            // check if cycle already exists
+            if (this.bootCycles[cycle]) {
+                throw Error(`Boot cycle "${cycle}" already exists.`);
+            }
+
+            this.bootCycles[cycle] = [];
+        }
+
+        // Re-initialize Boot Cycle Functions
+        InitializeBootCycle(this);
+
+        return this;
+    }
+
+    /**
      * A shortcut to process.env
      * With option for default value
      * @param key
@@ -225,6 +253,7 @@ export class Xpresser {
      * Start the application
      */
     async start() {
+        await this.modules.loadActiveModule();
         return this;
     }
 }

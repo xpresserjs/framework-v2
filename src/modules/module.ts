@@ -7,6 +7,13 @@ export default class BaseModule {
     readonly keyword: string = "";
 
     /**
+     * Get xpresser console instance.
+     */
+    protected get console() {
+        return this.$.console;
+    }
+
+    /**
      * Provide the module with the Xpresser instance.
      * @param $
      */
@@ -19,5 +26,12 @@ export default class BaseModule {
      */
     async init() {
         // Init module
+    }
+
+    /**
+     * Provide boot cycles to be added.
+     */
+    customBootCycles(): string[] {
+        return [];
     }
 }

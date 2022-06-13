@@ -74,8 +74,11 @@
     "skipLibCheck": true,
     /* Skip type checking of declaration files. */
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
     /* Disallow inconsistently-cased references to the same file. */
+    "types": [
+      "./src/modules/types",
+    ]
   },
   "exclude": [
     "dist"

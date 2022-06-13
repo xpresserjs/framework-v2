@@ -27,8 +27,5 @@ export async function init(
         await $.modules.useServerModule();
     }
 
-    // Set default module to 'cli'
-    $.modules.setDefault("cli");
-
     return $;
 }

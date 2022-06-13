@@ -1,9 +1,10 @@
 import BaseEngine from "./BaseEngine.js";
+import type Modules from "../types/modules.js";
 import type BaseModule from "../modules/module.js";
-import Modules from "../types/modules.js";
+import type { BootCycle } from "./BootCycleEngine.js";
 
 export default class ModulesEngine extends BaseEngine {
-    private default: Modules.AvailableKeywords | undefined;
+    private default: Modules.AvailableKeywords = "server";
     protected readonly registered: Record<string, InstanceType<typeof BaseModule>> = {};
 
     /**
@@ -16,11 +17,23 @@ export default class ModulesEngine extends BaseEngine {
         if (!this.registered[keyword]) {
             throw new Error(`Module with keyword: "${keyword}" is not registered yet!.`);
         }
-
         // set as default
         this.default = keyword;
 
         return this;
+    }
+
+    has(keyword: Modules.AvailableKeywords, assert: boolean = false): boolean | never {
+        if (assert) {
+            const hasModule = this.has(keyword);
+
+            if (!hasModule)
+                throw new Error(`Module with keyword: "${keyword}" is not registered yet!.`);
+
+            return hasModule;
+        }
+
+        return this.registered[keyword] !== undefined;
     }
 
     /**
@@ -41,7 +54,10 @@ export default class ModulesEngine extends BaseEngine {
             return this.$.engineData.data.activeModule;
         }
         // The second argument passed to console is the active module
-        const activeModule = process.argv[2];
+        let activeModule = process.argv[2];
+
+        // if no active module, return default
+        if (!activeModule) activeModule = this.default;
 
         // save to engineData
         this.$.engineData.data.activeModule = activeModule;
@@ -49,7 +65,27 @@ export default class ModulesEngine extends BaseEngine {
         return activeModule;
     }
 
-    public loadActiveModule() {}
+    /**
+     * Loads and initializes the current active module.
+     */
+    public async loadActiveModule() {
+        const activeModule = this.getActive() as Modules.AvailableKeywords;
+        // Assert if active module is not registered
+        this.has(activeModule, true);
+
+        // Load module
+        const module = this.registered[activeModule];
+
+        // check if module has boot cycles
+        const customCycles = module.customBootCycles();
+        if (customCycles.length) {
+            // if true, add custom cycles to boot cycles
+            this.$.addBootCycle(customCycles as BootCycle.Keys[]);
+        }
+
+        // Initialize module
+        await module.init();
+    }
 
     /**
      * Register Server ModulesEngine

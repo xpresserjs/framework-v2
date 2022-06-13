@@ -1,10 +1,14 @@
 /**
  * Engine Data Type
  */
-export default interface EngineData {
-    packageDotJson: {
-        path: string;
-        data: typeof import("../../package.json");
-    };
-    activeModule: string;
+declare module EngineData {
+    export interface Main {
+        packageDotJson: {
+            path: string;
+            data: typeof import("../../package.json");
+        };
+        activeModule: string;
+    }
 }
+
+export default EngineData;

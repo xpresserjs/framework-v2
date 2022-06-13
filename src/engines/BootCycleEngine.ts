@@ -5,6 +5,13 @@ export declare module BootCycle {
     export type DefaultKeys =
         | "start"
         | "boot"
+        | "started"
+
+        // Cli Module BootCycles
+        | "consoleInit"
+        | "consoleReady"
+
+        // Server Module BootCycles
         | "expressInit"
         | "serverInit"
         | "bootServer"
