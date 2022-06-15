@@ -196,9 +196,7 @@ export default class ConsoleEngine extends BaseEngine {
             console.error(error);
         }
 
-        if (exit) {
-            return this.$.exit();
-        }
+        if (exit) return this.$.exit();
     }
 
     /**

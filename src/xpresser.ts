@@ -3,12 +3,13 @@ import { ObjectCollection } from "object-collection";
 import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
-import InitializeBootCycle, { BootCycle } from "./engines/BootCycleEngine.js";
+import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig } from "./config.js";
 import type Config from "./types/configs.js";
 import type EngineData from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import ModulesEngine from "./engines/ModulesEngine.js";
+import InXpresserError from "./errors/InXpresserError.js";
 
 export class Xpresser {
     /**
@@ -89,7 +90,7 @@ export class Xpresser {
         this.loadPackageDotJsonFile();
 
         // Initialize Boot Cycle Functions
-        InitializeBootCycle(this);
+        BootCycleEngine.initialize(this);
 
         // Initialize ConsoleEngine
         this.console = new ConsoleEngine(this);
@@ -209,9 +210,63 @@ export class Xpresser {
         }
 
         // Re-initialize Boot Cycle Functions
-        InitializeBootCycle(this);
+        BootCycleEngine.initialize(this);
 
         return this;
+    }
+
+    /**
+     * Run a boot cycle
+     * @param cycle
+     * @param done
+     */
+    runBootCycle(cycle: BootCycle.Keys) {
+        // Check if cycle exists
+        if (!this.bootCycles[cycle]) {
+            throw new InXpresserError(`Boot cycle "${cycle}" does not exist.`);
+        }
+
+        return new Promise<void>(async (onCycleEnd, onCycleError) => {
+            // Get all cycle functions
+            const cycles = this.bootCycles[cycle];
+            // Set this boot cycle key
+            const key = `on.${cycle}`;
+
+            if (cycles.length) {
+                // Record current cycle index;
+                this.engineData.set(key, 0);
+
+                // Add end cycle function
+                cycles.push(() => onCycleEnd());
+
+                /**
+                 * Create next cycle function
+                 */
+                const next = () => {
+                    // get last cycle index for this boot cycle
+                    const lastIndex = this.engineData.get(key, 0);
+                    // get current cycle function
+                    const currentIndex = lastIndex + 1;
+                    this.engineData.set(key, currentIndex);
+
+                    if (typeof cycles[currentIndex] !== "function") {
+                        throw new InXpresserError(
+                            `Boot cycle "${cycle}" has no function at index ${currentIndex}.`
+                        );
+                    }
+
+                    return InXpresserError.tryOrCatch(() => {
+                        // console.log("Running boot cycle function:", cycles[currentIndex]);
+                        cycles[currentIndex](next, this);
+                    });
+                };
+
+                // Pass next and current xpresser instance
+                return InXpresserError.tryOrCatch(() => cycles[0](next, this));
+            } else {
+                return onCycleEnd();
+            }
+        });
     }
 
     /**
@@ -253,7 +308,20 @@ export class Xpresser {
      * Start the application
      */
     async start() {
-        await this.modules.loadActiveModule();
+        try {
+            await this.modules.loadActiveModule();
+
+            // Run `start` cycle
+            await this.runBootCycle("start");
+            this.console.log("Started!");
+
+            // Run `boot` cycle
+            await this.runBootCycle("boot");
+            this.console.log("Booted!");
+        } catch (error) {
+            return this.console.logErrorAndExit(error);
+        }
+
         return this;
     }
 }

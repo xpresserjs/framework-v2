@@ -2,6 +2,7 @@ import BaseEngine from "./BaseEngine.js";
 import type Modules from "../types/modules.js";
 import type BaseModule from "../modules/module.js";
 import type { BootCycle } from "./BootCycleEngine.js";
+import InXpresserError from "../errors/InXpresserError.js";
 
 export default class ModulesEngine extends BaseEngine {
     private default: Modules.AvailableKeywords = "server";
@@ -15,7 +16,7 @@ export default class ModulesEngine extends BaseEngine {
     setDefault(keyword: Modules.AvailableKeywords) {
         // check if keyword is registered
         if (!this.registered[keyword]) {
-            throw new Error(`Module with keyword: "${keyword}" is not registered yet!.`);
+            throw new InXpresserError(`Module with keyword: "${keyword}" is not registered yet!.`);
         }
         // set as default
         this.default = keyword;
@@ -28,7 +29,9 @@ export default class ModulesEngine extends BaseEngine {
             const hasModule = this.has(keyword);
 
             if (!hasModule)
-                throw new Error(`Module with keyword: "${keyword}" is not registered yet!.`);
+                throw new InXpresserError(
+                    `Module with keyword: "${keyword}" is not registered yet!.`
+                );
 
             return hasModule;
         }

@@ -1,4 +1,5 @@
 import type { Xpresser } from "../xpresser.js";
+import Keys = BootCycle.Keys;
 
 export declare module BootCycle {
     export type Func = (next: () => void, $: Xpresser) => any;
@@ -28,22 +29,24 @@ export declare module BootCycle {
     export type On = Record<Keys, (todo: Func) => On>;
 }
 
-/**
- * BootCycle - Boot Cycle Initializer
- * Extends `$.on`, adds boot cycle functions.
- * @param $
- * @constructor
- */
-export default function InitializeBootCycle($: Xpresser) {
-    // loop through all boot cycles
-    // and add them to the `$.on` object
-    for (const cycle of $.getBootCycles()) {
-        if (!$.on[cycle]) {
-            $.on[cycle] = (todo) => {
-                $.addToBootCycle(cycle, todo);
-                // This is returned to allow chaining
-                return $.on;
-            };
+export default class BootCycleEngine {
+    /**
+     * BootCycle - Boot Cycle Initializer
+     * Extends `$.on`, adds boot cycle functions.
+     * @param $
+     * @constructor
+     */
+    static initialize($: Xpresser) {
+        // loop through all boot cycles
+        // and add them to the `$.on` object
+        for (const cycle of $.getBootCycles()) {
+            if (!$.on[cycle]) {
+                $.on[cycle] = (todo) => {
+                    $.addToBootCycle(cycle, todo);
+                    // This is returned to allow chaining
+                    return $.on;
+                };
+            }
         }
     }
 }

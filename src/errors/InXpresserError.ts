@@ -1,4 +1,4 @@
-import os = require("os");
+import os from "node:os";
 
 /**
  * InXpresserError
@@ -35,46 +35,63 @@ class InXpresserError extends Error {
     }
 
     /**
-     * TryOrCatch
-     *
-     * this method runs any function passed to it in a try catch.
-     * It also returns the value of the function called or logs error.
-     *
-     * **Note:** It does not throw errors, only console.logs them.
-     * @param fn
+     * use
+     * Convert an Error to an InXpresserError
+     * @param e
      */
-    static try<T>(fn: () => T): T {
-        return this.tryOrCatch(fn, (e) => {
-            console.log(e);
-        });
+    static use(e: Error) {
+        // Initialize InXpresserError
+        const error = new this(e.message);
+
+        // Copy stack
+        const stack: string[] = e.stack!.split(os.EOL);
+        stack.splice(0, 1);
+        stack.unshift(error.stack!.split(os.EOL)[0]);
+
+        // Set stack
+        error.stack = stack.join(os.EOL);
+
+        // Return error
+        return error;
     }
 
     /**
      * TryOrCatch
      *
-     * this method runs any function passed to it in a try catch.
-     * It also returns the value of the function called or logs error.
-     *
-     * **Note:** It throw errors
+     * Runs a function in a try catch.
+     * if pass it returns the value of the function called.
+     * if fails it will throw error unless a handleError function is passed.
      * @param fn
      * @param handleError
      */
     static tryOrCatch<T>(fn: () => T, handleError?: (error: InXpresserError) => any): T {
         try {
             return fn();
-        } catch (e) {
-            if (handleError) return handleError(this.use(e as Error));
-            throw this.use(e as Error);
+        } catch (e: any) {
+            // If error is not an InXpresserError
+            // convert it to an InXpresserError
+            if (!(e instanceof this)) {
+                e = this.use(e);
+            }
+
+            if (handleError) return handleError(e);
+
+            console.log(e.message);
+            throw e;
         }
     }
 
-    static use(e: Error) {
-        const error = new this(e.message);
-        const stack: string[] = e.stack!.split(os.EOL);
-        stack.splice(0, 1);
-        stack.unshift(error.stack!.split(os.EOL)[0]);
-        error.stack = stack.join(os.EOL);
-        return error;
+    /**
+     * Try
+     *
+     * Runs a function in a try catch.
+     * if pass it returns the value of the function called.
+     *
+     * **Note:** It does not throw errors, only console.logs them.
+     * @param fn
+     */
+    static try<T>(fn: () => T): T {
+        return this.tryOrCatch(fn, console.log);
     }
 }
 
