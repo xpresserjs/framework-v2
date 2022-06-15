@@ -27,7 +27,7 @@ class InXpresserError extends Error {
         });
 
         // Ensure the name of this error is the same as the class name
-        this.name = "Error";
+        this.name = "InXpresserError";
         // This clips the constructor invocation from the stack trace.
         // It's not absolutely essential, but it does make the stack trace a little nicer.
         //  @see Node.js reference (bottom)
@@ -70,13 +70,11 @@ class InXpresserError extends Error {
         } catch (e: any) {
             // If error is not an InXpresserError
             // convert it to an InXpresserError
-            if (!(e instanceof this)) {
-                e = this.use(e);
-            }
+            if (!(e instanceof this)) e = this.use(e);
 
+            // If handleError is passed
             if (handleError) return handleError(e);
 
-            console.log(e.message);
             throw e;
         }
     }

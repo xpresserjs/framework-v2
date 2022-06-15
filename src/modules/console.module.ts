@@ -56,6 +56,14 @@ class ConsoleModule extends BaseModule {
 
         // save other commands to engineData
         ed.data.otherCommands = otherCommands;
+
+        // this.$.on.cons(() => {
+        //     console.log("Starting Console Module");
+        // });
+
+        await this.$.runBootCycle("consoleInit");
+
+        //
     }
 
     static getConsoleArgs(exclude: number = 3) {

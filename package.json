@@ -14,7 +14,7 @@
     "dev:ts": "nodemon dev/test.ts",
     "dev:ts:cli": "nodemon dev/test.ts -- cli",
     "dev:js": "npx nodemon dist/dev/test.js",
-    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli"
+    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli "
   },
   "engines": {
     "node": ">=14.16"

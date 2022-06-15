@@ -218,7 +218,6 @@ export class Xpresser {
     /**
      * Run a boot cycle
      * @param cycle
-     * @param done
      */
     runBootCycle(cycle: BootCycle.Keys) {
         // Check if cycle exists
@@ -226,45 +225,84 @@ export class Xpresser {
             throw new InXpresserError(`Boot cycle "${cycle}" does not exist.`);
         }
 
-        return new Promise<void>(async (onCycleEnd, onCycleError) => {
-            // Get all cycle functions
-            const cycles = this.bootCycles[cycle];
-            // Set this boot cycle key
-            const key = `on.${cycle}`;
+        // get BootCycle engine data as a collection
+        const engineData = this.engineData.path("BootCycle");
+
+        // Set this boot cycle key
+        const key = `on.${cycle}`;
+        const completedKey = `cycles.${cycle}.completed`;
+
+        if (engineData.has(completedKey) && engineData.get(completedKey) === true) {
+            // If cycle has already been completed,
+            // throw error to prevent from running it again
+            throw new InXpresserError(`Boot cycle "${cycle}" can only run once.`);
+        }
+
+        // Get all cycle functions
+        const cycles = this.bootCycles[cycle];
+
+        // Return promise that will be resolved when all cycles are completed
+        return new Promise<void>(async (resolve, reject) => {
+            // on complete function
+            const onCycleComplete = () => {
+                // Set this key to complete in engineData
+                engineData.set(completedKey, true);
+                return resolve();
+            };
+
+            // on error function
+            const onCycleError = (err: Error, cycleFnName?: string) => {
+                // log Error with cycle function name
+                this.console.logError(
+                    `Error in boot cycle [${cycle}:${cycleFnName || "Anonymous"}] error.`
+                );
+                return reject(InXpresserError.use(err));
+            };
 
             if (cycles.length) {
                 // Record current cycle index;
-                this.engineData.set(key, 0);
+                engineData.set(key, 0);
 
                 // Add end cycle function
-                cycles.push(() => onCycleEnd());
+                cycles.push(onCycleComplete);
 
                 /**
                  * Create next cycle function
                  */
                 const next = () => {
                     // get last cycle index for this boot cycle
-                    const lastIndex = this.engineData.get(key, 0);
+                    const lastIndex = engineData.get(key, 0);
+
                     // get current cycle function
                     const currentIndex = lastIndex + 1;
-                    this.engineData.set(key, currentIndex);
+                    engineData.set(key, currentIndex);
 
+                    // if for some reason, currentIndex is not a function,
+                    // then throw error
                     if (typeof cycles[currentIndex] !== "function") {
                         throw new InXpresserError(
                             `Boot cycle "${cycle}" has no function at index ${currentIndex}.`
                         );
                     }
 
-                    return InXpresserError.tryOrCatch(() => {
-                        // console.log("Running boot cycle function:", cycles[currentIndex]);
-                        cycles[currentIndex](next, this);
-                    });
+                    // Run current cycle function
+                    try {
+                        return cycles[currentIndex](next, this);
+                    } catch (err: any) {
+                        return onCycleError(err, cycles[currentIndex].name);
+                    }
                 };
 
-                // Pass next and current xpresser instance
-                return InXpresserError.tryOrCatch(() => cycles[0](next, this));
+                /**
+                 * Start first cycle function
+                 */
+                try {
+                    cycles[0](next, this);
+                } catch (e: any) {
+                    onCycleError(e, cycles[0].name);
+                }
             } else {
-                return onCycleEnd();
+                return onCycleComplete();
             }
         });
     }
@@ -300,7 +338,6 @@ export class Xpresser {
         this.start().finally(() => {
             // do nothing
         });
-
         return this;
     }
 
@@ -308,19 +345,16 @@ export class Xpresser {
      * Start the application
      */
     async start() {
-        try {
-            await this.modules.loadActiveModule();
+        await this.modules.loadActiveModule();
 
-            // Run `start` cycle
-            await this.runBootCycle("start");
-            this.console.log("Started!");
+        // Run `start` cycle
+        await this.runBootCycle("start");
 
-            // Run `boot` cycle
-            await this.runBootCycle("boot");
-            this.console.log("Booted!");
-        } catch (error) {
-            return this.console.logErrorAndExit(error);
-        }
+        // Run `boot` cycle
+        await this.runBootCycle("boot");
+
+        // Log Started
+        this.console.logInfo(`Started!`);
 
         return this;
     }

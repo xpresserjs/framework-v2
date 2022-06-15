@@ -1,5 +1,4 @@
 import type { Xpresser } from "../xpresser.js";
-import Keys = BootCycle.Keys;
 
 export declare module BootCycle {
     export type Func = (next: () => void, $: Xpresser) => any;
@@ -53,15 +52,33 @@ export default class BootCycleEngine {
 
 /**
  * Define Cycle Function
- * Only provides types.
  */
-export function BootCycleFunction(fn: BootCycle.Func, name?: string) {
-    // Provide a name for the function
+export function BootCycleFunction(fn: BootCycle.Func): BootCycle.Func;
+/**
+ * Define Cycle Function with name as first argument
+ * @param name
+ * @param fn
+ */
+export function BootCycleFunction(name: string, fn: BootCycle.Func): BootCycle.Func;
+/**
+ * Define Cycle Function with function as first argument
+ * @param fn
+ * @param name
+ */
+export function BootCycleFunction(fn: BootCycle.Func, name: string): BootCycle.Func;
+export function BootCycleFunction(fn: BootCycle.Func | string, name?: string | BootCycle.Func) {
+    // if first argument is a string,
+    // we assume it is the name of the function
+    if (typeof fn === "string") {
+        const $name = fn;
+        fn = name as BootCycle.Func;
+        name = $name;
+    }
+
+    // Provide a name for the function if name is defined
     // This is important because the name will be used
     // to log errors
-    if (name) {
-        Object.defineProperty(fn, "name", { value: name });
-    }
+    if (name) Object.defineProperty(fn, "name", { value: name });
 
     return fn;
 }
