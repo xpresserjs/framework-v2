@@ -2,7 +2,7 @@
 
 We already know what **Xpresser** is, but what is **Xpresser v2**?
 
-Right from the start, xpresser had one goal which is to take an object of `configurations` and return fully
+Right from the start, xpresser had one goal which is to take an object of `configurations` and return a fully
 extensible `framework` for you to use.
 With the idea of the configuration object as the snapshot or the state of the application.
 
@@ -24,7 +24,7 @@ $.start().catch($.console.logError);
 `$` becomes a fully extensible framework that can be use for either
 
 - Server Requests - Server Part of the Framework
-- ConsoleEngine Requests - Cli Part of the Framework
+- Console Requests - Cli Part of the Framework
 
 For example
 
