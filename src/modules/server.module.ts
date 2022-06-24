@@ -1,4 +1,4 @@
-import BaseModule from "./module.js";
+import BaseModule from "./base.module.js";
 
 /**
  * This module handles the console section of the application.

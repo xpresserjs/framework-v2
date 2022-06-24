@@ -1,4 +1,4 @@
-import BaseModule from "./module.js";
+import BaseModule from "./base.module.js";
 
 export interface ConsoleModuleEngineData {
     mainCommand?: string;
@@ -9,9 +9,18 @@ export interface ConsoleModuleEngineData {
  * This module handles the console section of the application.
  * key: cli
  */
-class ConsoleModule extends BaseModule {
+class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     // ModulesEngine launch keyword
     keyword: string = "cli";
+
+    static getConsoleArgs(exclude: number = 3) {
+        // clone process.argv
+        // prevent changing process.argv
+        const clonedArgs = [...process.argv];
+
+        // Remove first 3 arguments
+        return clonedArgs.splice(exclude);
+    }
 
     customBootCycles() {
         return [
@@ -23,7 +32,6 @@ class ConsoleModule extends BaseModule {
 
     async init() {
         // Engine Data Storage
-        const ed = this.$.engineData.newInstanceFrom<ConsoleModuleEngineData>("ConsoleModule", {});
 
         this.console.logInfo("Initializing Console Module");
 
@@ -52,28 +60,13 @@ class ConsoleModule extends BaseModule {
         mainCommand = mainCommand.trim();
 
         // save main command to engineData
-        ed.data.mainCommand = mainCommand;
+        this.memory.data.mainCommand = mainCommand;
 
         // save other commands to engineData
-        ed.data.otherCommands = otherCommands;
-
-        // this.$.on.cons(() => {
-        //     console.log("Starting Console Module");
-        // });
-
-        await this.$.runBootCycle("consoleInit");
-
-        //
+        this.memory.data.otherCommands = otherCommands;
     }
 
-    static getConsoleArgs(exclude: number = 3) {
-        // clone process.argv
-        // prevent changing process.argv
-        const clonedArgs = [...process.argv];
-
-        // Remove first 3 arguments
-        return clonedArgs.splice(exclude);
-    }
+    // async
 }
 
 export default ConsoleModule;

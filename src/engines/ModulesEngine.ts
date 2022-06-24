@@ -1,10 +1,12 @@
 import BaseEngine from "./BaseEngine.js";
-import type Modules from "../types/modules.js";
-import type BaseModule from "../modules/module.js";
-import type { BootCycle } from "./BootCycleEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
+import type Modules from "../types/modules.js";
+import type BaseModule from "../modules/base.module.js";
+import type { BootCycle } from "./BootCycleEngine.js";
 
-export default class ModulesEngine extends BaseEngine {
+export default class ModulesEngine extends BaseEngine<{
+    activeModule: string;
+}> {
     private default: Modules.AvailableKeywords = "server";
     protected readonly registered: Record<string, InstanceType<typeof BaseModule>> = {};
 
@@ -42,7 +44,7 @@ export default class ModulesEngine extends BaseEngine {
     /**
      * Load the current application module.
      */
-    async register<M extends typeof BaseModule>(Module: M) {
+    async register<M extends typeof BaseModule<any>>(Module: M) {
         const module = new Module(this.$);
         // register module
         this.registered[module.keyword] = module;
@@ -52,19 +54,19 @@ export default class ModulesEngine extends BaseEngine {
      * Get the current active modules.
      */
     public getActive() {
-        // if already in engineData, return
-        if (this.$.engineData.data.activeModule) {
-            return this.$.engineData.data.activeModule;
-        }
+        // if already in return
+        if (this.memory.data.activeModule) return this.memory.data.activeModule;
+
         // The second argument passed to console is the active module
         let activeModule = process.argv[2];
 
         // if no active module, return default
         if (!activeModule) activeModule = this.default;
 
-        // save to engineData
-        this.$.engineData.data.activeModule = activeModule;
+        // save to engine
+        this.memory.data.activeModule = activeModule;
 
+        // return
         return activeModule;
     }
 

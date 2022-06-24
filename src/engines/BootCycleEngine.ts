@@ -1,4 +1,5 @@
 import type { Xpresser } from "../xpresser.js";
+import InXpresserError from "../errors/InXpresserError.js";
 
 export declare module BootCycle {
     export type Func = (next: () => void, $: Xpresser) => any;
@@ -25,7 +26,8 @@ export declare module BootCycle {
     export interface CustomCycles extends Record<DefaultKeys, Func[]> {}
 
     export type Keys = keyof CustomCycles;
-    export type On = Record<Keys, (todo: Func) => On>;
+    export type Keys$ = `${Keys}$`;
+    export type On = Record<Keys | Keys$, (todo: Func) => On>;
 }
 
 export default class BootCycleEngine {
@@ -43,6 +45,26 @@ export default class BootCycleEngine {
                 $.on[cycle] = (todo) => {
                     $.addToBootCycle(cycle, todo);
                     // This is returned to allow chaining
+                    return $.on;
+                };
+
+                // Add $.on.$cycle$Next
+                const cycle$ = `${cycle}$` as BootCycle.Keys;
+                $.on[cycle$] = (todo) => {
+                    $.addToBootCycle(cycle, async (next, xpresser) => {
+                        // Run todo function
+                        await todo(() => {
+                            $.console.logError(
+                                new InXpresserError(
+                                    `Next function called in $.on.${cycle$} is irrelevant.`
+                                )
+                            );
+                        }, xpresser);
+
+                        // Call next function
+                        await next();
+                    });
+
                     return $.on;
                 };
             }

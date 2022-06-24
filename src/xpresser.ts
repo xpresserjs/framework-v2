@@ -5,11 +5,11 @@ import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
 import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig } from "./config.js";
+import ModulesEngine from "./engines/ModulesEngine.js";
+import InXpresserError from "./errors/InXpresserError.js";
 import type Config from "./types/configs.js";
 import type EngineData from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
-import ModulesEngine from "./engines/ModulesEngine.js";
-import InXpresserError from "./errors/InXpresserError.js";
 
 export class Xpresser {
     /**
@@ -60,12 +60,12 @@ export class Xpresser {
     /**
      * Boot Cycle Functions
      */
-    readonly on: BootCycle.On = {} as BootCycle.On;
+    readonly on: BootCycle.On;
 
     /**
      * Has serves a source of truth for the current environment
      */
-    readonly has = {
+    private readonly has = {
         registeredModules: false
     };
 
@@ -89,11 +89,32 @@ export class Xpresser {
         // Load xpresser's Package.json file
         this.loadPackageDotJsonFile();
 
-        // Initialize Boot Cycle Functions
-        BootCycleEngine.initialize(this);
-
         // Initialize ConsoleEngine
         this.console = new ConsoleEngine(this);
+
+        /**
+         * Since on can be populated by other engines,
+         * We need to override the default getter
+         * And throw an error if the key is not found
+         */
+        this.on = new Proxy({} as BootCycle.On, {
+            get: (target, prop: BootCycle.Keys) => {
+                // Log Deprecation Message.
+
+                if (!this.bootCycles[prop] && prop.slice(-1) !== "$") {
+                    this.console.logErrorAndExit(
+                        new InXpresserError(
+                            `$.on.${prop} has not been initialized or is not a valid boot cycle name. Try calling it in a $.on.start function.`
+                        )
+                    );
+                }
+
+                return target[prop];
+            }
+        });
+
+        // Initialize Boot Cycle Functions
+        BootCycleEngine.initialize(this);
 
         // Initialize Modules
         this.modules = new ModulesEngine(this);
@@ -220,6 +241,15 @@ export class Xpresser {
      * @param cycle
      */
     runBootCycle(cycle: BootCycle.Keys) {
+        if (!this.has.registeredModules) {
+            return this.console.logErrorAndExit(
+                new InXpresserError(
+                    `Cannot run boot cycle "${cycle}" before modules are registered.`
+                )
+            );
+        }
+
+        this.console.logInfo(`Running Boot Cycle: ${cycle}`);
         // Check if cycle exists
         if (!this.bootCycles[cycle]) {
             throw new InXpresserError(`Boot cycle "${cycle}" does not exist.`);
@@ -346,6 +376,7 @@ export class Xpresser {
      */
     async start() {
         await this.modules.loadActiveModule();
+        this.has.registeredModules = true;
 
         // Run `start` cycle
         await this.runBootCycle("start");
@@ -355,6 +386,8 @@ export class Xpresser {
 
         // Log Started
         this.console.logInfo(`Started!`);
+
+        console.log(this.engineData.data);
 
         return this;
     }
