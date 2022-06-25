@@ -30,6 +30,20 @@ export declare module BootCycle {
     export type On = Record<Keys | Keys$, (todo: Func) => On>;
 }
 
+/**
+ * Add EngineData types
+ */
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface Main {
+            bootCycle: {
+                on: Record<BootCycle.Keys, number>;
+                cycles: Record<BootCycle.Keys, { completed: true }>;
+            };
+        }
+    }
+}
+
 export default class BootCycleEngine {
     /**
      * BootCycle - Boot Cycle Initializer

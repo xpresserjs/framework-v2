@@ -2,11 +2,26 @@ import BaseEngine from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import type Modules from "../types/modules.js";
 import type BaseModule from "../modules/base.module.js";
-import type { BootCycle } from "./BootCycleEngine.js";
+import type {BootCycle} from "./BootCycleEngine.js";
 
-export default class ModulesEngine extends BaseEngine<{
+
+export interface ModuleEngineMemoryData {
     activeModule: string;
-}> {
+}
+
+/**
+ * Add EngineData types
+ */
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface EnginesMemory {
+            ModulesEngine: ModuleEngineMemoryData;
+        }
+    }
+}
+
+
+export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     private default: Modules.AvailableKeywords = "server";
     protected readonly registered: Record<string, InstanceType<typeof BaseModule>> = {};
 

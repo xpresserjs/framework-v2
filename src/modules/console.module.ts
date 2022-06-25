@@ -1,8 +1,19 @@
 import BaseModule from "./base.module.js";
 
 export interface ConsoleModuleEngineData {
-    mainCommand?: string;
-    otherCommands?: string[];
+    mainCommand: string;
+    otherCommands: string[];
+}
+
+/**
+ * Add EngineData types
+ */
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface ModulesMemory {
+            ConsoleModule: ConsoleModuleEngineData;
+        }
+    }
 }
 
 /**

@@ -1,4 +1,4 @@
-import { ObjectCollection } from "object-collection";
+import type { ObjectCollectionTyped } from "object-collection";
 import type { Xpresser } from "../xpresser.js";
 import InXpresserError from "../errors/InXpresserError.js";
 
@@ -6,25 +6,25 @@ import InXpresserError from "../errors/InXpresserError.js";
  * This class provides the base structure for all classes that requires Xpresser
  */
 export default class BaseEngine<MemoryData = Record<string, any>> {
-    protected memory: ObjectCollection<MemoryData>;
+    protected memory: ObjectCollectionTyped<MemoryData>;
 
     constructor(protected readonly $: Xpresser) {
-        // Set xpresser instance to this class.
+        const className = this.constructor.name;
+
+        // set xpresser instance
         this.$ = $;
 
-        // Create memory object.
+        // get modules engine data
         const engines = this.$.engineData.path(`engines`);
 
-        if (engines.has(this.constructor.name)) {
+        // If this engine already exists, throw error
+        if (engines.has(className)) {
             throw new InXpresserError(
-                `EngineClass with name: "${this.constructor.name}" already has memory data!`
+                `EngineClass with name: "${className}" already has memory data!`
             );
         }
 
-        this.memory = engines.newInstanceFrom<MemoryData>(this.constructor.name);
-    }
-
-    static use<Engine extends typeof BaseEngine>(this: Engine, $: Xpresser) {
-        return new this($) as InstanceType<Engine>;
+        // Create memory data
+        this.memory = engines.path(className) as typeof this.memory;
     }
 }

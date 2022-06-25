@@ -1,9 +1,9 @@
-import type { Xpresser } from "../xpresser.js";
-import { ObjectCollection } from "object-collection";
 import InXpresserError from "../errors/InXpresserError.js";
+import type { Xpresser } from "../xpresser.js";
+import type { ObjectCollectionTyped } from "object-collection";
 
-export default class BaseModule<MemoryData = any> {
-    protected memory: ObjectCollection<MemoryData>;
+export default class BaseModule<MemoryData = Record<string, any>> {
+    protected memory: ObjectCollectionTyped<MemoryData>;
 
     /**
      * ModulesEngine launch keyword
@@ -22,18 +22,23 @@ export default class BaseModule<MemoryData = any> {
      * @param $
      */
     constructor(protected readonly $: Xpresser) {
+        const className = this.constructor.name;
+
+        // set xpresser instance
         this.$ = $;
 
-        // Set xpresser instance to this class.
+        // get modules engine data
         const engines = this.$.engineData.path(`modules`);
 
-        if (engines.has(this.constructor.name)) {
+        // If this module already exists, throw error
+        if (engines.has(className)) {
             throw new InXpresserError(
-                `ModuleClass with name: "${this.constructor.name}" already has memory data!`
+                `ModuleClass with name: "${className}" already has memory data!`
             );
         }
 
-        this.memory = engines.newInstanceFrom<MemoryData>(this.constructor.name);
+        // Create memory data
+        this.memory = engines.path(className) as typeof this.memory;
     }
 
     /**

@@ -32,6 +32,6 @@
   },
   "dependencies": {
     "fs-extra": "^10.1.0",
-    "object-collection": "^4.0.12"
+    "object-collection": "^4.1.3"
   }
 }

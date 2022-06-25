@@ -1,16 +1,16 @@
 /**
  * Engine Data Type
  */
-declare module EngineData {
-    export interface Engines {}
+export declare module EngineData {
+    export interface EnginesMemory {}
+    export interface ModulesMemory {}
 
     export interface Main {
         packageDotJson: {
             path: string;
             data: typeof import("../../package.json");
         };
-        engines: Engines;
+        engines: EnginesMemory;
+        modules: ModulesMemory;
     }
 }
-
-export default EngineData;

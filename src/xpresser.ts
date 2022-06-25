@@ -1,5 +1,5 @@
 import PATH from "node:path";
-import { ObjectCollection } from "object-collection";
+import { ObjectCollection, ObjectCollectionTyped } from "object-collection";
 import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
@@ -8,7 +8,7 @@ import { DefaultConfig } from "./config.js";
 import ModulesEngine from "./engines/ModulesEngine.js";
 import InXpresserError from "./errors/InXpresserError.js";
 import type Config from "./types/configs.js";
-import type EngineData from "./types/engine-data.js";
+import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 
 export class Xpresser {
@@ -31,7 +31,7 @@ export class Xpresser {
     /**
      * Engine Memory Store
      */
-    public readonly engineData: ObjectCollection<EngineData.Main> = new ObjectCollection();
+    public readonly engineData = new ObjectCollectionTyped<EngineData.Main>({} as EngineData.Main);
 
     /**
      * Store
@@ -125,7 +125,7 @@ export class Xpresser {
      * @param engine
      */
     engine<Engine extends typeof BaseEngine>(engine: Engine) {
-        return engine.use<Engine>(this);
+        return new engine(this) as InstanceType<Engine>;
     }
 
     /**
@@ -256,7 +256,7 @@ export class Xpresser {
         }
 
         // get BootCycle engine data as a collection
-        const engineData = this.engineData.path("BootCycle");
+        const engineData = this.engineData.path("bootCycle");
 
         // Set this boot cycle key
         const key = `on.${cycle}`;
@@ -386,8 +386,6 @@ export class Xpresser {
 
         // Log Started
         this.console.logInfo(`Started!`);
-
-        console.log(this.engineData.data);
 
         return this;
     }
