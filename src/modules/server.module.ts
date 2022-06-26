@@ -18,14 +18,25 @@ declare module "../engines/BootCycleEngine.js" {
 }
 
 /**
+ * Add Modules Related Types
+ */
+declare module "../modules/base.module.js" {
+    module Modules {
+        enum Available {
+            server = "ServerModule"
+        }
+    }
+}
+
+/**
  * This module handles the console section of the application.
  * key: cli
  */
 class ServerModule extends BaseModule {
     // ModulesEngine launch keyword
-    keyword: string = "server";
+    static keyword: string = "server";
 
-    customBootCycles(): string[] {
+    static customBootCycles(): string[] {
         return [
             // list of boot cycles available on this module
             "serverInit",

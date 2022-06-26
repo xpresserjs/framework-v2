@@ -29,12 +29,23 @@ declare module "../engines/BootCycleEngine.js" {
 }
 
 /**
+ * Add Modules Related Types
+ */
+declare module "../modules/base.module.js" {
+    module Modules {
+        export enum Available {
+            cli = "ConsoleModule"
+        }
+    }
+}
+
+/**
  * This module handles the console section of the application.
  * key: cli
  */
 class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     // ModulesEngine launch keyword
-    keyword: string = "cli";
+    static keyword: string = "cli";
 
     static getConsoleArgs(exclude: number = 3) {
         // clone process.argv
@@ -45,7 +56,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         return clonedArgs.splice(exclude);
     }
 
-    customBootCycles() {
+    static customBootCycles() {
         return [
             // list of boot cycles available on this module
             "consoleInit",

@@ -2,13 +2,21 @@ import InXpresserError from "../errors/InXpresserError.js";
 import type { Xpresser } from "../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
 
+/**
+ * ModulesEngine Related Types
+ */
+export declare module Modules {
+    export enum Available {}
+    export type Keywords = keyof typeof Available;
+}
+
 export default class BaseModule<MemoryData = Record<string, any>> {
     protected memory: ObjectCollectionTyped<MemoryData>;
 
     /**
      * ModulesEngine launch keyword
      */
-    readonly keyword: string = "";
+    static readonly keyword: string = "";
 
     /**
      * Get xpresser console instance.
@@ -51,7 +59,7 @@ export default class BaseModule<MemoryData = Record<string, any>> {
     /**
      * Provide boot cycles to be added.
      */
-    customBootCycles(): string[] {
+    static customBootCycles(): string[] {
         return [];
     }
 }

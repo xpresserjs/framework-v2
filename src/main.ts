@@ -16,15 +16,19 @@ export async function init(
 ): Promise<Xpresser> {
     const $ = new Xpresser(config);
 
-    /**
-     * Use ConsoleEngine & Server Modules
-     */
-    if (modules.includes("cli")) {
-        await $.modules.useConsoleModule();
-    }
+    try {
+        /**
+         * Use ConsoleEngine & Server Modules
+         */
+        if (modules.includes("cli")) {
+            await $.modules.useConsoleModule();
+        }
 
-    if (modules.includes("server")) {
-        await $.modules.useServerModule();
+        if (modules.includes("server")) {
+            await $.modules.useServerModule();
+        }
+    } catch (e) {
+        $.console.logErrorAndExit(e);
     }
 
     return $;

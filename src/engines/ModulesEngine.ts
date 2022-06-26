@@ -1,19 +1,19 @@
 import BaseEngine from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import type Modules from "../types/modules.js";
-import type BaseModule from "../modules/base.module.js";
-import type {BootCycle} from "./BootCycleEngine.js";
+import BaseModule, { type Modules } from "../modules/base.module.js";
+import type { BootCycle } from "./BootCycleEngine.js";
 
 export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
-    private default: Modules.AvailableKeywords = "server";
-    protected readonly registered: Record<string, InstanceType<typeof BaseModule>> = {};
+    private default: Modules.Keywords = "server";
+    // protected readonly initialized: Record<string, InstanceType<typeof BaseModule>> = {};
+    protected readonly registered: Record<string, typeof BaseModule> = {};
 
     /**
      * Set the default module to be used,
      * When no module is specified
      * @param keyword
      */
-    setDefault(keyword: Modules.AvailableKeywords) {
+    setDefault(keyword: Modules.Keywords) {
         // check if keyword is registered
         if (!this.registered[keyword]) {
             throw new InXpresserError(`Module with keyword: "${keyword}" is not registered yet!.`);
@@ -24,7 +24,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         return this;
     }
 
-    has(keyword: Modules.AvailableKeywords, assert: boolean = false): boolean | never {
+    has(keyword: Modules.Keywords, assert: boolean = false): boolean | never {
         if (assert) {
             const hasModule = this.has(keyword);
 
@@ -43,12 +43,22 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Load the current application module.
      */
     async register<M extends typeof BaseModule<any>>(Module: M) {
-        const module = new Module(this.$);
+        const name = Module.keyword;
+
+        // throw error if name is undefined
+        if (!name) {
+            throw new InXpresserError(
+                `Module: "${Module.name}" does not have a static keyword property!`
+            );
+        }
+
         // register module
-        this.registered[module.keyword] = module;
+        this.registered[Module.keyword] = Module;
+
+        this.has(Module.keyword as Modules.Keywords, true);
 
         // register boot cycles
-        const customCycles = module.customBootCycles();
+        const customCycles = Module.customBootCycles();
         if (customCycles.length) {
             // if true, add custom cycles to boot cycles
             this.$.addBootCycle(customCycles as BootCycle.Keys[]);
@@ -79,13 +89,16 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Loads and initializes the current active module.
      */
     public async initializeActiveModule() {
-        const activeModule = this.getActive() as Modules.AvailableKeywords;
+        const activeModule = this.getActive() as Modules.Keywords;
 
         // Assert if active module is not registered
         this.has(activeModule, true);
 
         // Load module
-        const module = this.registered[activeModule];
+        const Module = this.registered[activeModule];
+
+        // initialize module
+        const module = new Module(this.$);
 
         // Initialize module
         await module.init();
@@ -97,7 +110,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     async useServerModule() {
         // Import and use ConsoleEngine ModulesEngine
         const ServerModule = await import("../modules/server.module.js");
-        await this.register(ServerModule.default);
+        return this.register(ServerModule.default);
     }
 
     /**
@@ -106,10 +119,9 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     async useConsoleModule() {
         // Import and use ConsoleEngine ModulesEngine
         const ConsoleModule = await import("../modules/console.module.js");
-        await this.register(ConsoleModule.default);
+        return this.register(ConsoleModule.default);
     }
 }
-
 
 export interface ModuleEngineMemoryData {
     activeModule: string;
