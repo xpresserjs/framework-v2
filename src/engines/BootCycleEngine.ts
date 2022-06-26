@@ -3,18 +3,20 @@ import InXpresserError from "../errors/InXpresserError.js";
 
 export declare module BootCycle {
     export type Func = (next: () => void, $: Xpresser) => any;
-    export type DefaultKeys = "beforeStart" | "start" | "boot" | "started";
 
     // Server Module BootCycles
     // Make use of interface to make it extensible
     export interface DefaultCycles extends Record<string, Func[]> {}
 
-    // CustomCycles extends a record of DefaultKeys
-    // this is done purposely to make it extensible
-    // Since DefaultKeys is a string literal array, it can't be extended.
-    export interface CustomCycles extends Record<DefaultKeys, any> {}
+    // Custom Module BootCycles
+    export enum Cycles {
+        beforeStart = "beforeStart",
+        start = "start",
+        boot = "boot",
+        started = "started"
+    }
 
-    export type Keys = keyof CustomCycles;
+    export type Keys = keyof typeof Cycles;
     export type Keys$ = `${Keys}$`;
     export type On = Record<Keys | Keys$, (fn: Func) => On>;
 }

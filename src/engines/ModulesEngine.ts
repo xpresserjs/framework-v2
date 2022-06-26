@@ -3,6 +3,24 @@ import InXpresserError from "../errors/InXpresserError.js";
 import BaseModule, { type Modules } from "../modules/base.module.js";
 import type { BootCycle } from "./BootCycleEngine.js";
 
+/**
+ * Add EngineData types
+ */
+export interface ModuleEngineMemoryData {
+    activeModule: string;
+}
+
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface EnginesMemory {
+            ModulesEngine: ModuleEngineMemoryData;
+        }
+    }
+}
+
+/**
+ * Default ModulesEngine Class
+ */
 export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     private default: Modules.Keywords = "server";
     // protected readonly initialized: Record<string, InstanceType<typeof BaseModule>> = {};
@@ -105,35 +123,18 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     }
 
     /**
-     * Register Server ModulesEngine
+     * Register Server Module
      */
     async useServerModule() {
-        // Import and use ConsoleEngine ModulesEngine
         const ServerModule = await import("../modules/server.module.js");
         return this.register(ServerModule.default);
     }
 
     /**
-     * Register ConsoleEngine ModulesEngine
+     * Register Console Module
      */
     async useConsoleModule() {
-        // Import and use ConsoleEngine ModulesEngine
         const ConsoleModule = await import("../modules/console.module.js");
         return this.register(ConsoleModule.default);
-    }
-}
-
-export interface ModuleEngineMemoryData {
-    activeModule: string;
-}
-
-/**
- * Add EngineData types
- */
-declare module "../types/engine-data.js" {
-    module EngineData {
-        interface EnginesMemory {
-            ModulesEngine: ModuleEngineMemoryData;
-        }
     }
 }

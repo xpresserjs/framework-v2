@@ -21,9 +21,9 @@ declare module "../types/engine-data.js" {
  */
 declare module "../engines/BootCycleEngine.js" {
     module BootCycle {
-        interface CustomCycles {
-            consoleInit: BootCycle.Func[];
-            consoleReady: BootCycle.Func[];
+        enum Cycles {
+            consoleInit = "consoleInit",
+            consoleReady = "consoleReady"
         }
     }
 }

@@ -6,13 +6,13 @@ import BaseModule from "./base.module.js";
 
 declare module "../engines/BootCycleEngine.js" {
     module BootCycle {
-        interface CustomCycles {
-            expressInit: BootCycle.Func[];
-            serverInit: BootCycle.Func[];
-            bootServer: BootCycle.Func[];
-            http: BootCycle.Func[];
-            https: BootCycle.Func[];
-            serverBooted: BootCycle.Func[];
+        enum Cycles {
+            expressInit = "expressInit",
+            serverInit = "serverInit",
+            bootServer = "bootServer",
+            http = "http",
+            https = "https",
+            serverBooted = "serverBooted"
         }
     }
 }
