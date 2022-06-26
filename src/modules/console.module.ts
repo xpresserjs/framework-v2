@@ -1,17 +1,29 @@
 import BaseModule from "./base.module.js";
 
+/**
+ * Add EngineData types
+ */
 export interface ConsoleModuleEngineData {
     mainCommand: string;
     otherCommands: string[];
 }
 
-/**
- * Add EngineData types
- */
 declare module "../types/engine-data.js" {
     module EngineData {
         interface ModulesMemory {
             ConsoleModule: ConsoleModuleEngineData;
+        }
+    }
+}
+
+/**
+ * Add BootCycle types
+ */
+declare module "../engines/BootCycleEngine.js" {
+    module BootCycle {
+        interface CustomCycles {
+            consoleInit: BootCycle.Func[];
+            consoleReady: BootCycle.Func[];
         }
     }
 }
@@ -42,10 +54,6 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     }
 
     async init() {
-        // Engine Data Storage
-
-        this.console.logInfo("Initializing Console Module");
-
         // get console args
         const args = ConsoleModule.getConsoleArgs();
 
@@ -76,8 +84,6 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         // save other commands to engineData
         this.memory.data.otherCommands = otherCommands;
     }
-
-    // async
 }
 
 export default ConsoleModule;

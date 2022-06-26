@@ -3,45 +3,20 @@ import InXpresserError from "../errors/InXpresserError.js";
 
 export declare module BootCycle {
     export type Func = (next: () => void, $: Xpresser) => any;
-    export type DefaultKeys =
-        | "start"
-        | "boot"
-        | "started"
+    export type DefaultKeys = "beforeStart" | "start" | "boot" | "started";
 
-        // Cli Module BootCycles
-        | "consoleInit"
-        | "consoleReady"
-
-        // Server Module BootCycles
-        | "expressInit"
-        | "serverInit"
-        | "bootServer"
-        | "http"
-        | "https"
-        | "serverBooted";
-
+    // Server Module BootCycles
     // Make use of interface to make it extensible
     export interface DefaultCycles extends Record<string, Func[]> {}
 
-    export interface CustomCycles extends Record<DefaultKeys, Func[]> {}
+    // CustomCycles extends a record of DefaultKeys
+    // this is done purposely to make it extensible
+    // Since DefaultKeys is a string literal array, it can't be extended.
+    export interface CustomCycles extends Record<DefaultKeys, any> {}
 
     export type Keys = keyof CustomCycles;
     export type Keys$ = `${Keys}$`;
-    export type On = Record<Keys | Keys$, (todo: Func) => On>;
-}
-
-/**
- * Add EngineData types
- */
-declare module "../types/engine-data.js" {
-    module EngineData {
-        interface Main {
-            bootCycle: {
-                on: Record<BootCycle.Keys, number>;
-                cycles: Record<BootCycle.Keys, { completed: true }>;
-            };
-        }
-    }
+    export type On = Record<Keys | Keys$, (fn: Func) => On>;
 }
 
 export default class BootCycleEngine {
@@ -117,4 +92,18 @@ export function BootCycleFunction(fn: BootCycle.Func | string, name?: string | B
     if (name) Object.defineProperty(fn, "name", { value: name });
 
     return fn;
+}
+
+/**
+ * Add EngineData types
+ */
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface Main {
+            bootCycle: {
+                on: Record<BootCycle.Keys, number>;
+                cycles: Record<BootCycle.Keys, { completed: true }>;
+            };
+        }
+    }
 }

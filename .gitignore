@@ -10,3 +10,5 @@ yarn.lock
 # TS
 *.js
 *.d.ts
+
+pnpm-lock.yaml

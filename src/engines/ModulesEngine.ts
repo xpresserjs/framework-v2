@@ -4,23 +4,6 @@ import type Modules from "../types/modules.js";
 import type BaseModule from "../modules/base.module.js";
 import type {BootCycle} from "./BootCycleEngine.js";
 
-
-export interface ModuleEngineMemoryData {
-    activeModule: string;
-}
-
-/**
- * Add EngineData types
- */
-declare module "../types/engine-data.js" {
-    module EngineData {
-        interface EnginesMemory {
-            ModulesEngine: ModuleEngineMemoryData;
-        }
-    }
-}
-
-
 export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     private default: Modules.AvailableKeywords = "server";
     protected readonly registered: Record<string, InstanceType<typeof BaseModule>> = {};
@@ -35,9 +18,9 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         if (!this.registered[keyword]) {
             throw new InXpresserError(`Module with keyword: "${keyword}" is not registered yet!.`);
         }
+
         // set as default
         this.default = keyword;
-
         return this;
     }
 
@@ -63,6 +46,13 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         const module = new Module(this.$);
         // register module
         this.registered[module.keyword] = module;
+
+        // register boot cycles
+        const customCycles = module.customBootCycles();
+        if (customCycles.length) {
+            // if true, add custom cycles to boot cycles
+            this.$.addBootCycle(customCycles as BootCycle.Keys[]);
+        }
     }
 
     /**
@@ -88,20 +78,14 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Loads and initializes the current active module.
      */
-    public async loadActiveModule() {
+    public async initializeActiveModule() {
         const activeModule = this.getActive() as Modules.AvailableKeywords;
+
         // Assert if active module is not registered
         this.has(activeModule, true);
 
         // Load module
         const module = this.registered[activeModule];
-
-        // check if module has boot cycles
-        const customCycles = module.customBootCycles();
-        if (customCycles.length) {
-            // if true, add custom cycles to boot cycles
-            this.$.addBootCycle(customCycles as BootCycle.Keys[]);
-        }
 
         // Initialize module
         await module.init();
@@ -123,5 +107,21 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         // Import and use ConsoleEngine ModulesEngine
         const ConsoleModule = await import("../modules/console.module.js");
         await this.register(ConsoleModule.default);
+    }
+}
+
+
+export interface ModuleEngineMemoryData {
+    activeModule: string;
+}
+
+/**
+ * Add EngineData types
+ */
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface EnginesMemory {
+            ModulesEngine: ModuleEngineMemoryData;
+        }
     }
 }

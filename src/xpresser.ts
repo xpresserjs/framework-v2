@@ -47,14 +47,10 @@ export class Xpresser {
      * Default Boot Cycles
      */
     private readonly bootCycles: BootCycle.DefaultCycles = {
+        beforeStart: [],
         start: [],
         boot: [],
-        expressInit: [],
-        serverInit: [],
-        bootServer: [],
-        http: [],
-        https: [],
-        serverBooted: []
+        started: []
     };
 
     /**
@@ -99,12 +95,10 @@ export class Xpresser {
          */
         this.on = new Proxy({} as BootCycle.On, {
             get: (target, prop: BootCycle.Keys) => {
-                // Log Deprecation Message.
-
                 if (!this.bootCycles[prop] && prop.slice(-1) !== "$") {
                     this.console.logErrorAndExit(
                         new InXpresserError(
-                            `$.on.${prop} has not been initialized or is not a valid boot cycle name. Try calling it in a $.on.start function.`
+                            `$.on.${prop} has not been initialized or is not a valid boot cycle name.`
                         )
                     );
                 }
@@ -223,10 +217,9 @@ export class Xpresser {
 
         for (const cycle of cycles) {
             // check if cycle already exists
-            if (this.bootCycles[cycle]) {
-                throw Error(`Boot cycle "${cycle}" already exists.`);
-            }
+            if (this.bootCycles[cycle]) throw Error(`Boot cycle "${cycle}" already exists.`);
 
+            // set the cycle
             this.bootCycles[cycle] = [];
         }
 
@@ -249,7 +242,6 @@ export class Xpresser {
             );
         }
 
-        this.console.logInfo(`Running Boot Cycle: ${cycle}`);
         // Check if cycle exists
         if (!this.bootCycles[cycle]) {
             throw new InXpresserError(`Boot cycle "${cycle}" does not exist.`);
@@ -375,7 +367,9 @@ export class Xpresser {
      * Start the application
      */
     async start() {
-        await this.modules.loadActiveModule();
+        await this.modules.initializeActiveModule();
+
+        // Set registered flag
         this.has.registeredModules = true;
 
         // Run `start` cycle
