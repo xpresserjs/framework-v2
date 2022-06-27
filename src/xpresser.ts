@@ -26,7 +26,7 @@ export class Xpresser {
     /**
      * Config Collection
      */
-    public readonly config: ObjectCollection<Config.Main>;
+    public readonly config: ObjectCollectionTyped<Config.Main>;
 
     /**
      * Engine Memory Store
@@ -77,7 +77,7 @@ export class Xpresser {
      */
     constructor(config: Config.InitConfig, options?: Partial<Config.Options>) {
         // Initialize Config as object-collection type.
-        this.config = new ObjectCollection(config as Config.Main).merge(DefaultConfig);
+        this.config = ObjectCollectionTyped.useCloned(DefaultConfig).merge(config);
 
         // Update Options
         this.updateOptions(options);
@@ -265,10 +265,21 @@ export class Xpresser {
 
         // Return promise that will be resolved when all cycles are completed
         return new Promise<void>(async (resolve, reject) => {
+            // Log Start of Boot Cycle
+            this.console.debugIf("bootCycles.started", () => {
+                this.console.logInfo(`Cycle: [${cycle}] started`);
+            });
+
             // on complete function
             const onCycleComplete = () => {
                 // Set this key to complete in engineData
                 engineData.set(completedKey, true);
+
+                // Log End of Boot Cycle
+                this.console.debugIf("bootCycles.completed", () => {
+                    this.console.logSuccess(`Cycle: [${cycle}] completed`);
+                });
+
                 return resolve();
             };
 
@@ -372,14 +383,16 @@ export class Xpresser {
         // Set registered flag
         this.has.registeredModules = true;
 
+        await this.runBootCycle("beforeStart");
+
         // Run `start` cycle
         await this.runBootCycle("start");
 
         // Run `boot` cycle
         await this.runBootCycle("boot");
 
-        // Log Started
-        this.console.logInfo(`Started!`);
+        // Run`started` cycle
+        await this.runBootCycle("started");
 
         return this;
     }

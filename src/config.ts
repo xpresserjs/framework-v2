@@ -6,15 +6,15 @@ import Config from "./types/configs.js";
 
 export const DefaultConfig: Config.Main = {
     name: "Xpresser",
-
-    // App ENV, should be equivalent to NODE_ENV
     env: "development",
 
-    // Enable Debugging
     debug: {
-        // If set to false all debugging && debug logs are disabled
-        // While if set to true all debug settings are set to their configuration values.
         enabled: true,
+
+        bootCycles: {
+            started: false,
+            completed: false
+        },
 
         // Enable showing controller action on every request.
         requests: {

@@ -7,41 +7,77 @@ declare module Config {
         enabled: boolean;
 
         /**
+         * Boot Cycle debug settings
+         */
+        bootCycles: Partial<{
+            /**
+             * Log when boot cycle starts
+             */
+            started: boolean;
+
+            /**
+             * Log when boot cycle completes
+             */
+            completed: boolean;
+        }>;
+
+        /**
          * Enable showing controller action on every request.
          */
-        requests: {
-            // Enable Request Debugging
+        requests: Partial<{
+            /**
+             * Enable Request Debugging
+             */
             enabled: boolean;
 
-            // Enable color in logs
+            /**
+             * Enable color in logs
+             */
             colored: boolean;
 
-            // Show all request log data
+            /**
+             * Show all request log data
+             */
             showAll: boolean;
 
-            // Items to show in the request debug log
+            /**
+             * Items to show in the request debug log
+             */
             show: {
-                // Show time of the request
+                /**
+                 * Show time of the request
+                 */
                 time: boolean;
-                // Show status code of the request
+
+                /**
+                 * Show status code of the request
+                 */
                 statusCode: boolean;
-                // Show status message of the request
+
+                /**
+                 * Show status message of the request
+                 */
                 statusMessage: boolean;
             };
 
             // Ignore specific urls
             ignore: Array<string | number>;
-        };
+        }>;
 
         /**
          * Deprecated warnings Configuration
          */
-        deprecationWarnings: {
-            // Enable Deprecated warnings
+        deprecationWarnings: Partial<{
+            /**
+             * Enable Deprecated warnings
+             */
             enabled: boolean;
-            // Show stack trace of deprecated warnings
+
+            /**
+             * Show stack trace of deprecated warnings
+             */
             showStack: boolean;
-        };
+        }>;
     }
 
     // todo: Move to server module
@@ -51,6 +87,7 @@ declare module Config {
          * if not found default is used.
          */
         maintenanceMiddleware: string;
+
         /**
          * Server Port for http connections
          */
@@ -95,12 +132,16 @@ declare module Config {
          * SSL Configurations.
          */
         ssl: {
-            // Enable ssl
-            // default: false
+            /**
+             * Enable ssl
+             * default: false
+             */
             enabled: boolean;
 
-            // Ssl Port (if ssl is enabled)
-            // default: 443
+            /**
+             * Ssl Port (if ssl is enabled)
+             * default: 443
+             */
             port: number;
         };
 
@@ -122,9 +163,14 @@ declare module Config {
          * ['bodyParser', 'flash' 'helmet']
          */
         use: {
-            // Use BodyParser,
+            /**
+             * Use bodyParser package.
+             */
             bodyParser: boolean;
-            // Enable Flash
+
+            /**
+             * Enable Flash package.
+             */
             flash: boolean;
         };
 
@@ -138,52 +184,55 @@ declare module Config {
          * Xpresser Router Config
          */
         router: {
-            // router path case
+            /**
+             * Route url path case
+             */
             pathCase: "snake" | "kebab"; // snake or kebab
         };
     }
 
     export interface Paths {
-        // Base Folder
+        /** Base Folder */
         base: string;
 
-        // Configs Folder
+        /** Configs Folder */
         configs: string;
 
-        // Backend Folder
+        /** Backend Folder */
         backend: string;
 
-        // Frontend Folder
+        /** Frontend Folder */
         frontend: string;
 
-        // Public Folder
+        /** Public Folder */
         public: string;
 
         // Storage Folder
+        /** Storage Folder */
         storage: string;
 
-        // Npm Dir
+        /** Node modules Folder */
         node_modules: string;
 
-        // Events Folder
+        /** Events Folder */
         events: string;
 
-        // Controllers Folder
+        /** Controllers Folder */
         controllers: string;
 
-        // Models Folder
+        /** Models Folder */
         models: string;
 
-        // Middlewares Folder
+        /** Middlewares Folder */
         middlewares: string;
 
-        // Views Folder
+        /** Views Folder */
         views: string;
 
-        // Json Configs Folder
+        /** Json Configs Folder */
         jsonConfigs: string;
 
-        // Other Paths
+        /** Other Paths */
         routesFile: string;
     }
 

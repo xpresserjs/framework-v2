@@ -94,6 +94,17 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
 
         // save other commands to engineData
         this.memory.data.otherCommands = otherCommands;
+
+        // Run on beforeStart boot cycle
+        this.$.on.started(async (next) => {
+            await this.boot();
+            return next();
+        });
+    }
+
+    async boot() {
+        await this.$.runBootCycle("consoleInit");
+        await this.$.runBootCycle("consoleReady");
     }
 }
 

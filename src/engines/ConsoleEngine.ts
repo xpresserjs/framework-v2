@@ -3,6 +3,8 @@ import chalk from "chalk";
 import { touchMyMustache } from "../functions/inbuilt.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseEngine from "./BaseEngine.js";
+import type { Crawl } from "../types/path-crawler.js";
+import type Configs from "../types/configs.js";
 
 export default class ConsoleEngine extends BaseEngine {
     /**
@@ -63,6 +65,7 @@ export default class ConsoleEngine extends BaseEngine {
         }
 
         const mustaches = touchMyMustache(message);
+
         if (mustaches.length) {
             mustaches.forEach((m) => {
                 // remove mustache
@@ -235,5 +238,20 @@ export default class ConsoleEngine extends BaseEngine {
             if ($spacePerLine) this.log();
         }
         console.log(); // Spacing
+    }
+
+    debugIf<ConfigPath extends Crawl<Configs.Debug>>(key: ConfigPath, fn: () => void) {
+        // get debug config
+        const debug = this.$.config.pathTyped("debug");
+
+        // stop if debug is not enabled
+        if (!debug.data.enabled) return;
+
+        // get debug config for key
+        const debugKeyValue = debug.get(key);
+        if (!debugKeyValue) return;
+
+        // run fn
+        return fn();
     }
 }
