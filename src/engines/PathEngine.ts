@@ -46,11 +46,35 @@ class PathEngine extends BaseEngine {
     }
 
     /**
+     * Get path to storage folder.
+     * @param str - String to add to storage path
+     * @returns string
+     */
+    storage(str: string = "") {
+        return this.smartPath(`storage://${removeLeadingSlash(str)}`);
+    }
+
+    /**
+     * Get path to framework storage folder.
+     * @param str - String to add to framework storage path
+     * @returns string
+     */
+    frameworkStorage(str: string = "") {
+        return this.smartPath(`storage://framework/${removeLeadingSlash(str)}`);
+    }
+
+    /**
      * Resolve a path, or smart path.
      * @param paths - Paths to resolve
      * @returns string
      */
-    resolve(paths: SmartPaths.Path | string | string[]) {
+    resolve(
+        paths: SmartPaths.Path | string | string[],
+        options?: {
+            exclude?: string;
+            replace?: string;
+        }
+    ) {
         if (typeof paths === "string") {
             paths = [paths];
         }
@@ -60,7 +84,16 @@ class PathEngine extends BaseEngine {
             paths[index] = this.smartPath(paths[index] as SmartPaths.Path);
         }
 
-        return PATH.resolve(...paths);
+        // Get resolved path
+        let resolved = PATH.resolve(...paths);
+
+        // if exclude is set, remove it from resolved
+        if (options && options.exclude) {
+            const excludePath = this.maybeSmartPath(options.exclude);
+            resolved = resolved.replace(excludePath, options.replace || "");
+        }
+
+        return resolved;
     }
 
     /**
@@ -85,7 +118,7 @@ class PathEngine extends BaseEngine {
         // throw error if path is not found
         if (!pathConfig) {
             throw new InXpresserError(
-                `Cannot parse smart path "${smartPath}://" because "${smartPath}" is not found in paths config!`
+                `Cannot parse smart path "${smartPath}://" because "${smartPath}" does not exist in paths config!`
             );
         }
 
@@ -95,6 +128,44 @@ class PathEngine extends BaseEngine {
         }
 
         return PATH.resolve(pathConfig, ...segments);
+    }
+
+    /**
+     * Alias of .smartPath()
+     * But not type strict
+     * @param path - Path to resolve
+     * @returns string
+     */
+    maybeSmartPath(path: string) {
+        return this.smartPath(path as SmartPaths.Path);
+    }
+
+    /**
+     * This function resolves all `paths` config
+     */
+    resolveConfigPaths(keys?: string[]) {
+        let hasKeys = !!keys;
+        const pathsConfig = this.$.config.path("paths");
+
+        // if no keys, resolve all paths
+        if (!keys) keys = pathsConfig.keys();
+
+        for (const key of keys) {
+            // if hasKeys === true then there is a possibility of a dot notation being used.
+            const pathValue = hasKeys ? pathsConfig.get(key) : pathsConfig.data[key];
+
+            // exit if pathValue is not a string
+            if (typeof pathValue !== "string") continue;
+
+            // resolve path
+            if (hasKeys) {
+                pathsConfig.set(key, this.resolve(pathValue));
+            } else {
+                pathsConfig.data[key] = this.resolve(pathValue);
+            }
+        }
+
+        return this;
     }
 }
 

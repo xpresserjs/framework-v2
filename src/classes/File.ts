@@ -272,7 +272,7 @@ export default class File {
      * @param path
      * @param fileExists
      */
-    static readJson<T>(path: string, fileExists = false) {
+    static readJson<T extends object>(path: string, fileExists = false) {
         /**
          * Check if path exists
          */

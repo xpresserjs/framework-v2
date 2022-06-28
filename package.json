@@ -1,6 +1,6 @@
 {
   "name": "@xpresser/framework",
-  "version": "0.0.1",
+  "version": "2.0.0",
   "description": "Xpresser v2 Core",
   "type": "module",
   "repository": "https://github.com/xpresserjs/framework-v2",
@@ -10,11 +10,13 @@
   "exports": "./dist/src/main.js",
   "scripts": {
     "watch": "npx tsc --watch",
-    "build": "npx tsc",
+    "build": "npm run build:before && npx tsc",
+    "build:before": "rm -rf dist",
+    "build:after": "rm dist/package.json",
     "dev:ts": "npx nodemon dev/test.ts",
     "dev:ts:cli": "npx nodemon dev/test.ts -- cli hello",
     "dev:js": "npx nodemon dist/dev/test.js",
-    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli"
+    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli hello"
   },
   "engines": {
     "node": ">=14.16"

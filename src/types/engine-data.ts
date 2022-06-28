@@ -8,7 +8,7 @@ export declare module EngineData {
     export interface Main {
         packageDotJson: {
             path: string;
-            data: typeof import("../../package.json");
+            data: object;
         };
         engines: EnginesMemory;
         modules: ModulesMemory;

@@ -68,7 +68,15 @@ export class Xpresser {
      * Has serves a source of truth for the current environment
      */
     private readonly has = {
-        registeredModules: false
+        /**
+         * Set to true once modules have been initialized
+         */
+        registeredModules: false,
+
+        /**
+         * Set to true once $.start is called.
+         */
+        started: false
     };
 
     /**
@@ -98,12 +106,12 @@ export class Xpresser {
         this.console = new ConsoleEngine(this);
 
         // Initialize PathEngine
-        this.path = new PathEngine(this);
+        this.path = new PathEngine(this).resolveConfigPaths();
 
         /**
-         * Since on can be populated by other engines,
+         * Since $.on can be populated by other engines,
          * We need to override the default getter
-         * And throw an error if the key is not found
+         * And throw an error if a particular boot cycle key is not found
          */
         this.on = new Proxy({} as BootCycle.On, {
             get: (target, prop: BootCycle.Keys) => {
@@ -363,6 +371,20 @@ export class Xpresser {
      * Start the application
      */
     async start() {
+        // Log Error if instance has started already.
+        if (this.has.started) {
+            this.console.logError(
+                new InXpresserError(
+                    "$.start has already been called! Application has already started."
+                )
+            );
+
+            return this;
+        }
+
+        // Set started to true
+        this.has.started = true;
+
         await this.modules.initializeActiveModule();
 
         // Set registered flag
@@ -379,13 +401,14 @@ export class Xpresser {
         // Run`started` cycle
         await this.runBootCycle("started");
 
-        // this.console.log({
-        //     base: this.path.base("/backend/cycles/"),
-        //     smartBase: this.path.resolve(["base://", "backend/cycles/"])
-        // });
+        // set `uploads` folder path in config.
+        // it enables smart path 'uploads://'
+        this.config.set("paths.uploads", "storage://uploads");
 
-        console.log(this.path.resolve("jobs://cycles"));
-        console.log(this.path.base("backend://cycles"));
+        const avatars = this.path.resolve("uploads://avatars");
+
+        // log uploads
+        this.console.log(avatars);
 
         return this;
     }
@@ -418,8 +441,7 @@ export class Xpresser {
         }
 
         // Read package.json file
-        type PackageDotJson = typeof import("../package.json");
-        const packageDotJson = File.readJson<PackageDotJson>(packageDotJsonPath);
+        const packageDotJson = File.readJson(packageDotJsonPath);
 
         // Store package.json in engineData
         this.engineData.setTyped("packageDotJson", {

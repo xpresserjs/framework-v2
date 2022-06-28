@@ -70,9 +70,9 @@ export const DefaultConfig: Config.Main = {
     paths: {
         base: "./",
         backend: "base://backend",
-        frontend: "frontend",
-        public: "public",
-        storage: "storage",
+        frontend: "base://frontend",
+        public: "base://public",
+        storage: "base://storage",
         node_modules: "base://node_modules",
         routesFile: "backend://routes.js",
         events: "backend://events",

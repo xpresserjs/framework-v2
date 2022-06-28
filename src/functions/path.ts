@@ -20,12 +20,12 @@ export function __filename(url: string) {
  * Remove leading slash from a string.
  */
 export function removeLeadingSlash(str: string) {
-    return str[0] === "/" ? str.substring(1) : str;
+    return str.length && str[0] === "/" ? str.substring(1) : str;
 }
 
 /**
  * Remove trailing slash from a string.
  */
 export function removeTrailingSlash(str: string) {
-    return str.replace(/\/$/, "");
+    return str.length ? str.replace(/\/$/, "") : str;
 }
