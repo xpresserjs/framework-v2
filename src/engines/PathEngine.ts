@@ -50,7 +50,7 @@ class PathEngine extends BaseEngine {
      * @param paths - Paths to resolve
      * @returns string
      */
-    resolve(paths: string | string[] | SmartPaths.Path) {
+    resolve(paths: SmartPaths.Path | string | string[]) {
         if (typeof paths === "string") {
             paths = [paths];
         }
@@ -63,6 +63,11 @@ class PathEngine extends BaseEngine {
         return PATH.resolve(...paths);
     }
 
+    /**
+     * Resolve a smart path
+     * @param path - Smart path to resolve
+     * @returns string
+     */
     smartPath(path: SmartPaths.Path): string {
         // return path if it is not a smart path
         if (!(path.indexOf("://") > 0)) return path;
