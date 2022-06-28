@@ -5,34 +5,51 @@ import type Config from "../types/configs.js";
 import BaseEngine from "./BaseEngine.js";
 
 export declare module SmartPaths {
-    enum AddedPaths {
+    enum Add {
         npm
     }
-    enum ExcludedPaths {
+    enum Exclude {
         routesFile,
         node_modules
     }
-    type keys = keyof Omit<Config.Paths, keyof typeof ExcludedPaths> | keyof typeof AddedPaths;
+
+    type AddedKeys = keyof typeof Add;
+    type ExcludedKeys = keyof typeof Exclude;
+
+    type keys = keyof Omit<Config.Paths, ExcludedKeys> | AddedKeys;
     type Path = `${keys}://${string}`;
+
+    type Aliases = Record<AddedKeys, string>;
 }
 
 class PathEngine extends BaseEngine {
+    smartAliases: SmartPaths.Aliases = {
+        npm: "node_modules"
+    };
+
     /**
      * Get path to base folder.
      * @param str - String to add to base path
      * @returns string
      */
     base(str: string = "") {
-        // Get base path from config
-        // if str is empty, return base path
-        let base = this.$.config.data.paths.base;
-        if (!str.length) return base;
-
-        const p: PathEngine = new PathEngine(this.$);
-
-        return this.resolve([base, removeLeadingSlash(str)]);
+        return this.smartPath(`base://${removeLeadingSlash(str)}`);
     }
 
+    /**
+     * Get path to backend folder.
+     * @param str - String to add to backend path
+     * @returns string
+     */
+    backend(str: string = "") {
+        return this.smartPath(`backend://${removeLeadingSlash(str)}`);
+    }
+
+    /**
+     * Resolve a path, or smart path.
+     * @param paths - Paths to resolve
+     * @returns string
+     */
     resolve(paths: string | string[] | SmartPaths.Path) {
         if (typeof paths === "string") {
             paths = [paths];
@@ -50,10 +67,15 @@ class PathEngine extends BaseEngine {
         // return path if it is not a smart path
         if (!(path.indexOf("://") > 0)) return path;
 
-        const [smartPath, ...segments] = path.split("://");
+        let [smartPath, ...segments] = path.split("://");
+
+        // check if smartPath is an alias
+        if (this.smartAliases[smartPath as SmartPaths.AddedKeys]) {
+            smartPath = this.smartAliases[smartPath as SmartPaths.AddedKeys];
+        }
 
         // get path from config
-        const pathConfig = this.$.config.data.paths[smartPath as keyof Config.Paths];
+        let pathConfig = this.$.config.data.paths[smartPath as keyof Config.Paths];
 
         // throw error if path is not found
         if (!pathConfig) {
@@ -64,7 +86,7 @@ class PathEngine extends BaseEngine {
 
         // pathConfig is a smart path resolve it.
         if (pathConfig.indexOf("://") > 0) {
-            return PATH.resolve(this.smartPath(pathConfig as SmartPaths.Path), ...segments);
+            pathConfig = this.smartPath(pathConfig as SmartPaths.Path);
         }
 
         return PATH.resolve(pathConfig, ...segments);
