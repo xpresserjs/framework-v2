@@ -266,7 +266,7 @@ export class Xpresser {
         // Return promise that will be resolved when all cycles are completed
         return new Promise<void>(async (resolve, reject) => {
             // Log Start of Boot Cycle
-            this.console.debugIf("bootCycles.started", () => {
+            this.console.debugIf("bootCycle.started", () => {
                 this.console.logInfo(`Cycle: [${cycle}] started`);
             });
 
@@ -276,7 +276,7 @@ export class Xpresser {
                 engineData.set(completedKey, true);
 
                 // Log End of Boot Cycle
-                this.console.debugIf("bootCycles.completed", () => {
+                this.console.debugIf("bootCycle.completed", () => {
                     this.console.logSuccess(`Cycle: [${cycle}] completed`);
                 });
 

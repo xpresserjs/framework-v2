@@ -9,7 +9,7 @@ declare module Config {
         /**
          * Boot Cycle debug settings
          */
-        bootCycles: Partial<{
+        bootCycle: Partial<{
             /**
              * Log when boot cycle starts
              */
