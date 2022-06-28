@@ -216,6 +216,9 @@ declare module Config {
         /** Events Folder */
         events: string;
 
+        /** Jobs Folder */
+        jobs: string;
+
         /** Controllers Folder */
         controllers: string;
 

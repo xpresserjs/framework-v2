@@ -384,7 +384,7 @@ export class Xpresser {
         //     smartBase: this.path.resolve(["base://", "backend/cycles/"])
         // });
 
-        console.log(this.path.resolve("backend://cycles"));
+        console.log(this.path.resolve("jobs://cycles"));
 
         return this;
     }

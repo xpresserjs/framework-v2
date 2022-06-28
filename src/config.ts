@@ -76,6 +76,7 @@ export const DefaultConfig: Config.Main = {
         node_modules: "base://node_modules",
         routesFile: "backend://routes.js",
         events: "backend://events",
+        jobs: "backend://jobs",
         controllers: "backend://controllers",
         models: "backend://models",
         middlewares: "backend://middlewares",
