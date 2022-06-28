@@ -405,10 +405,11 @@ export class Xpresser {
         // it enables smart path 'uploads://'
         this.config.set("paths.uploads", "storage://uploads");
 
-        const avatars = this.path.resolve("uploads://avatars");
+        // get avatar path
+        const avatar = this.path.resolve("uploads://avatars/001.png");
 
         // log uploads
-        this.console.log(avatars);
+        this.console.log(avatar);
 
         return this;
     }
