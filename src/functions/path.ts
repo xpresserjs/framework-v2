@@ -15,3 +15,17 @@ export function __dirname(url: string) {
 export function __filename(url: string) {
     return Url.fileURLToPath(url);
 }
+
+/**
+ * Remove leading slash from a string.
+ */
+export function removeLeadingSlash(str: string) {
+    return str[0] === "/" ? str.substring(1) : str;
+}
+
+/**
+ * Remove trailing slash from a string.
+ */
+export function removeTrailingSlash(str: string) {
+    return str.replace(/\/$/, "");
+}

@@ -1,15 +1,16 @@
 import PATH from "node:path";
 import { ObjectCollection, ObjectCollectionTyped } from "object-collection";
+import InXpresserError from "./errors/InXpresserError.js";
 import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
 import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig } from "./config.js";
 import ModulesEngine from "./engines/ModulesEngine.js";
-import InXpresserError from "./errors/InXpresserError.js";
 import type Config from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
+import PathEngine from "./engines/PathEngine.js";
 
 export class Xpresser {
     /**
@@ -39,7 +40,12 @@ export class Xpresser {
     public readonly store: ObjectCollection<any> = new ObjectCollection();
 
     /**
-     * ConsoleEngine Engine
+     * PathEngine variable
+     */
+    readonly path: PathEngine;
+
+    /**
+     * ConsoleEngine variable
      */
     readonly console: ConsoleEngine;
 
@@ -79,6 +85,9 @@ export class Xpresser {
         // Initialize Config as object-collection type.
         this.config = ObjectCollectionTyped.useCloned(DefaultConfig).merge(config);
 
+        // setup date
+        this.setupDate();
+
         // Update Options
         this.updateOptions(options);
 
@@ -87,6 +96,9 @@ export class Xpresser {
 
         // Initialize ConsoleEngine
         this.console = new ConsoleEngine(this);
+
+        // Initialize PathEngine
+        this.path = new PathEngine(this);
 
         /**
          * Since on can be populated by other engines,
@@ -128,35 +140,6 @@ export class Xpresser {
      */
     updateOptions(options: Partial<Config.Options> = {}) {
         Object.assign(this.options, options);
-        return this;
-    }
-
-    /**
-     * Loads this package's package.json file
-     * Save it to this.engineData collection
-     * Using key "packageDotJson"
-     * @private
-     */
-    private loadPackageDotJsonFile() {
-        const currentDir = __dirname(import.meta.url);
-        let packageDotJsonPath = PATH.resolve(currentDir, "../package.json");
-
-        // if package.json does not exist,
-        // try to find it in the parent directory
-        if (!File.exists(packageDotJsonPath)) {
-            packageDotJsonPath = PATH.resolve(currentDir, "../../package.json");
-        }
-
-        // Read package.json file
-        type PackageDotJson = typeof import("../package.json");
-        const packageDotJson = File.readJson<PackageDotJson>(packageDotJsonPath);
-
-        // Store package.json in engineData
-        this.engineData.set("packageDotJson", {
-            path: packageDotJsonPath,
-            data: packageDotJson
-        });
-
         return this;
     }
 
@@ -289,6 +272,7 @@ export class Xpresser {
                 this.console.logError(
                     `Error in boot cycle [${cycle}:${cycleFnName || "Anonymous"}] error.`
                 );
+
                 return reject(InXpresserError.use(err));
             };
 
@@ -371,6 +355,7 @@ export class Xpresser {
         this.start().finally(() => {
             // do nothing
         });
+
         return this;
     }
 
@@ -393,6 +378,53 @@ export class Xpresser {
 
         // Run`started` cycle
         await this.runBootCycle("started");
+
+        // this.console.log({
+        //     base: this.path.base("/backend/cycles/"),
+        //     smartBase: this.path.resolve(["base://", "backend/cycles/"])
+        // });
+
+        console.log(this.path.resolve("backend://cycles"));
+
+        return this;
+    }
+
+    /**
+     * Set timezone to process.env.TZ
+     */
+    private setupDate() {
+        // configure timezone
+        const timezone = this.config.getTyped("date.timezone");
+        if (timezone) process.env.TZ = timezone;
+
+        return this;
+    }
+
+    /**
+     * Loads this package's package.json file
+     * Save it to this.engineData collection
+     * Using key "packageDotJson"
+     * @private
+     */
+    private loadPackageDotJsonFile() {
+        const currentDir = __dirname(import.meta.url);
+        let packageDotJsonPath = PATH.resolve(currentDir, "../package.json");
+
+        // if package.json does not exist,
+        // try to find it in the parent directory
+        if (!File.exists(packageDotJsonPath)) {
+            packageDotJsonPath = PATH.resolve(currentDir, "../../package.json");
+        }
+
+        // Read package.json file
+        type PackageDotJson = typeof import("../package.json");
+        const packageDotJson = File.readJson<PackageDotJson>(packageDotJsonPath);
+
+        // Store package.json in engineData
+        this.engineData.setTyped("packageDotJson", {
+            path: packageDotJsonPath,
+            data: packageDotJson
+        });
 
         return this;
     }

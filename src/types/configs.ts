@@ -207,7 +207,6 @@ declare module Config {
         /** Public Folder */
         public: string;
 
-        // Storage Folder
         /** Storage Folder */
         storage: string;
 

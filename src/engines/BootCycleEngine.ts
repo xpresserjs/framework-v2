@@ -2,6 +2,7 @@ import type { Xpresser } from "../xpresser.js";
 import InXpresserError from "../errors/InXpresserError.js";
 
 export declare module BootCycle {
+    // Boot Cycle Function
     export type Func = (next: () => void, $: Xpresser) => any;
 
     // Server Module BootCycles
@@ -19,6 +20,20 @@ export declare module BootCycle {
     export type Keys = keyof typeof Cycles;
     export type Keys$ = `${Keys}$`;
     export type On = Record<Keys | Keys$, (fn: Func) => On>;
+}
+
+/**
+ * Add EngineData types
+ */
+declare module "../types/engine-data.js" {
+    module EngineData {
+        interface Main {
+            bootCycle: {
+                on: Record<BootCycle.Keys, number>;
+                cycles: Record<BootCycle.Keys, { completed: true }>;
+            };
+        }
+    }
 }
 
 export default class BootCycleEngine {
@@ -93,19 +108,6 @@ export function BootCycleFunction(fn: BootCycle.Func | string, name?: string | B
     // to log errors
     if (name) Object.defineProperty(fn, "name", { value: name });
 
+    // return the function
     return fn;
-}
-
-/**
- * Add EngineData types
- */
-declare module "../types/engine-data.js" {
-    module EngineData {
-        interface Main {
-            bootCycle: {
-                on: Record<BootCycle.Keys, number>;
-                cycles: Record<BootCycle.Keys, { completed: true }>;
-            };
-        }
-    }
 }
