@@ -294,7 +294,7 @@ export class Xpresser {
                 /**
                  * Create next cycle function
                  */
-                const next = () => {
+                const next = async () => {
                     // get last cycle index for this boot cycle
                     const lastIndex = engineData.get(key, 0);
 
@@ -312,7 +312,7 @@ export class Xpresser {
 
                     // Run current cycle function
                     try {
-                        return cycles[currentIndex](next, this);
+                        await cycles[currentIndex](next, this);
                     } catch (err: any) {
                         return onCycleError(err, cycles[currentIndex].name);
                     }
@@ -322,9 +322,9 @@ export class Xpresser {
                  * Start first cycle function
                  */
                 try {
-                    cycles[0](next, this);
+                    await cycles[0](next, this);
                 } catch (e: any) {
-                    onCycleError(e, cycles[0].name);
+                    return onCycleError(e, cycles[0].name);
                 }
             } else {
                 return onCycleComplete();
@@ -400,16 +400,6 @@ export class Xpresser {
 
         // Run`started` cycle
         await this.runBootCycle("started");
-
-        // set `uploads` folder path in config.
-        // it enables smart path 'uploads://'
-        this.config.set("paths.uploads", "storage://uploads");
-
-        // get avatar path
-        const avatar = this.path.resolve("uploads://avatars/001.png");
-
-        // log uploads
-        this.console.log(avatar);
 
         return this;
     }
