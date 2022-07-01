@@ -257,28 +257,24 @@ export class Xpresser {
         // Return promise that will be resolved when all cycles are completed
         return new Promise<void>(async (resolve, reject) => {
             // Log Start of Boot Cycle
-            this.console.debugIf("bootCycle.started", () => {
-                this.console.logInfo(`Cycle: [${cycle}] started`);
-            });
+            this.console.debugIfTyped("bootCycle.started", `Cycle: [${cycle}] started.`);
 
             // on complete function
-            const onCycleComplete = () => {
+            const $onCycleComplete = () => {
                 // Set this key to complete in engineData
                 engineData.set(completedKey, true);
 
                 // Log End of Boot Cycle
-                this.console.debugIf("bootCycle.completed", () => {
-                    this.console.logSuccess(`Cycle: [${cycle}] completed`);
-                });
+                this.console.debugIfTyped("bootCycle.completed", `Cycle: [${cycle}] completed.`);
 
                 return resolve();
             };
 
             // on error function
-            const onCycleError = (err: Error, cycleFnName?: string) => {
+            const $onCycleError = (err: Error, cycleFnName?: string) => {
                 // log Error with cycle function name
                 this.console.logError(
-                    `Error in boot cycle [${cycle}:${cycleFnName || "Anonymous"}] error.`
+                    `Error in boot cycle [${cycle}:${cycleFnName || "anonymous"}]`
                 );
 
                 return reject(InXpresserError.use(err));
@@ -289,7 +285,7 @@ export class Xpresser {
                 engineData.set(key, 0);
 
                 // Add end cycle function
-                cycles.push(onCycleComplete);
+                cycles.push($onCycleComplete);
 
                 /**
                  * Create next cycle function
@@ -297,6 +293,14 @@ export class Xpresser {
                 const next = async () => {
                     // get last cycle index for this boot cycle
                     const lastIndex = engineData.get(key, 0);
+                    const lastIndexFn = cycles[lastIndex];
+                    const lastIndexFnName = lastIndexFn.name || "anonymous";
+
+                    // log completed if debug config is enabled
+                    this.console.debugIf(
+                        "bootCycle.bootCycleFunctions.completed",
+                        `<----- [${lastIndexFnName}] completed.`
+                    );
 
                     // get current cycle function
                     const currentIndex = lastIndex + 1;
@@ -310,24 +314,41 @@ export class Xpresser {
                         );
                     }
 
-                    // Run current cycle function
+                    const currentCycleFn = cycles[currentIndex];
                     try {
-                        await cycles[currentIndex](next, this);
+                        // log started if debug config is enabled
+                        if (currentCycleFn.name !== $onCycleComplete.name) {
+                            this.console.debugIf(
+                                "bootCycle.bootCycleFunctions.started",
+                                `-----> [${currentCycleFn.name}] started.`
+                            );
+                        }
+
+                        // run current cycle function
+                        await currentCycleFn(next, this);
                     } catch (err: any) {
-                        return onCycleError(err, cycles[currentIndex].name);
+                        return $onCycleError(err, currentCycleFn.name);
                     }
                 };
 
                 /**
                  * Start first cycle function
                  */
+                const currentCycleFn = cycles[0];
+                const currentCycleFnName = currentCycleFn.name || "anonymous";
                 try {
+                    // log started if debug config is enabled
+                    this.console.debugIf(
+                        "bootCycle.bootCycleFunctions.started",
+                        `-----> [${currentCycleFnName}] started.`
+                    );
+
                     await cycles[0](next, this);
                 } catch (e: any) {
-                    return onCycleError(e, cycles[0].name);
+                    return $onCycleError(e, currentCycleFn.name);
                 }
             } else {
-                return onCycleComplete();
+                return $onCycleComplete();
             }
         });
     }

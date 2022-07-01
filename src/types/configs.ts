@@ -19,6 +19,26 @@ declare module Config {
              * Log when boot cycle completes
              */
             completed: boolean;
+
+            /**
+             * Hide irrelevant next error
+             */
+            irrelevantNextError: boolean;
+
+            /**
+             * Boot Cycle Function Logs
+             */
+            bootCycleFunctions: Partial<{
+                /**
+                 * Log when boot cycle function starts
+                 */
+                started: boolean;
+
+                /**
+                 * Log when boot cycle function completes
+                 */
+                completed: boolean;
+            }>;
         }>;
 
         /**

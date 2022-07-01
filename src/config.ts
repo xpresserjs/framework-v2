@@ -13,7 +13,13 @@ export const DefaultConfig: Config.Main = {
 
         bootCycle: {
             started: false,
-            completed: false
+            completed: false,
+            irrelevantNextError: true,
+
+            bootCycleFunctions: {
+                started: false,
+                completed: false
+            }
         },
 
         requests: {

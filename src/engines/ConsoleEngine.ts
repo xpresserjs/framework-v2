@@ -32,7 +32,7 @@ export default class ConsoleEngine extends BaseEngine {
             return console.log("");
         }
 
-        args.unshift(chalk.white("=>"));
+        args.unshift(chalk.gray("=>"));
 
         if (args.length === 2 && typeof args[1] === "string") {
             return console.log(chalk.gray(...args));
@@ -240,7 +240,17 @@ export default class ConsoleEngine extends BaseEngine {
         console.log(); // Spacing
     }
 
-    debugIf<ConfigPath extends Crawl<Configs.Debug>>(key: ConfigPath, fn: () => void) {
+    /**
+     * Debug If checks if a debug config is enabled before it runs the function provided.
+     * It is used heavily in the framework to debug certain parts of the code.
+     *
+     * @param key - debug config key to check
+     * @param fn - Function to run if key value is true
+     * @returns {void}
+     */
+    debugIf(key: string, logCalmly: string): void;
+    debugIf(key: string, fn: () => void): void;
+    debugIf(key: string, fn: string | (() => void)): void {
         // get debug config
         const debug = this.$.config.pathTyped("debug");
 
@@ -251,7 +261,31 @@ export default class ConsoleEngine extends BaseEngine {
         const debugKeyValue = debug.get(key);
         if (!debugKeyValue) return;
 
+        // if a string is provided, log it calmly
+        if (typeof fn === "string") {
+            this.logCalmly(fn);
+            return;
+        }
+
         // run fn
         return fn();
+    }
+
+    /**
+     * Aliases for debugIf
+     * But strictly typed debug config keys.
+     * Currently experimental.
+     * @param key - debug config key to check
+     * @param fn - Function to run if key value is true
+     * @experimental
+     * @returns {void}
+     */
+    debugIfTyped(key: string, logCalmly: string): void;
+    debugIfTyped(key: string, fn: () => void): void;
+    debugIfTyped<ConfigPath extends Crawl<Configs.Debug>>(
+        key: ConfigPath,
+        fn: string | (() => void)
+    ): void {
+        return this.debugIf(key, fn as () => void);
     }
 }

@@ -1,3 +1,4 @@
+import { BootCycleFunction } from "../engines/BootCycleEngine.js";
 import BaseModule from "./base.module.js";
 
 /**
@@ -94,10 +95,12 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         this.memory.data.otherCommands = otherCommands;
 
         // Run on started boot cycle
-        this.$.on.started(async (next) => {
-            await this.boot();
-            return next();
-        });
+        this.$.on.started(
+            BootCycleFunction("___CONSOLE_MODULE___", async (next) => {
+                await this.boot();
+                return next();
+            })
+        );
     }
 
     async boot() {

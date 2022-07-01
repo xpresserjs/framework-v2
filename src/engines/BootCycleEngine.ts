@@ -63,17 +63,20 @@ export default class BootCycleEngine {
                         // Run todo function
                         await todo(() => {
                             // Todo: Add
-                            $.console.logError(
-                                new InXpresserError(
-                                    `Next function  called in $.on.${cycle$}(${funcName}) is irrelevant.`
+                            $.console.debugIfTyped("bootCycle.irrelevantNextError", () =>
+                                $.console.logError(
+                                    new InXpresserError(
+                                        `Next function called in $.on.${cycle$}(${funcName}) is irrelevant.`
+                                    )
                                 )
                             );
                         }, xpresser);
 
                         // Call next function
-                        return next();
+                        next();
                     });
 
+                    // Add to cycle
                     $.addToBootCycle(cycle, func);
 
                     return $.on;
