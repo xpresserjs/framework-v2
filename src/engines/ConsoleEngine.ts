@@ -280,9 +280,9 @@ export default class ConsoleEngine extends BaseEngine {
      * @experimental
      * @returns {void}
      */
-    debugIfTyped(key: string, logCalmly: string): void;
-    debugIfTyped(key: string, fn: () => void): void;
-    debugIfTyped<ConfigPath extends Crawl<Configs.Debug>>(
+    typedDebugIf(key: string, logCalmly: string): void;
+    typedDebugIf(key: string, fn: () => void): void;
+    typedDebugIf<ConfigPath extends Crawl<Configs.Debug>>(
         key: ConfigPath,
         fn: string | (() => void)
     ): void {
