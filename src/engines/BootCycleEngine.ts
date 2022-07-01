@@ -58,26 +58,21 @@ export default class BootCycleEngine {
                 const cycle$ = `${cycle}$` as BootCycle.Keys;
                 $.on[cycle$] = (todo) => {
                     // Make cycle function with next called
-                    const func = BootCycleFunction(
-                        todo.name || "Anonymous",
-                        async (next, xpresser) => {
-                            // Run todo function
-                            try {
-                                await todo(() => {
-                                    $.console.logError(
-                                        new InXpresserError(
-                                            `Next function called in $.on.${cycle$} is irrelevant.`
-                                        )
-                                    );
-                                }, xpresser);
-                            } catch (e) {
-                                throw e;
-                            }
+                    const funcName = todo.name || "anonymous";
+                    const func = BootCycleFunction(funcName, async (next, xpresser) => {
+                        // Run todo function
+                        await todo(() => {
+                            // Todo: Add
+                            $.console.logError(
+                                new InXpresserError(
+                                    `Next function  called in $.on.${cycle$}(${funcName}) is irrelevant.`
+                                )
+                            );
+                        }, xpresser);
 
-                            // Call next function
-                            return next();
-                        }
-                    );
+                        // Call next function
+                        return next();
+                    });
 
                     $.addToBootCycle(cycle, func);
 
