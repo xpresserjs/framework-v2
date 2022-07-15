@@ -90,55 +90,59 @@ export class Xpresser {
      * @param options
      */
     constructor(config: Config.InitConfig, options?: Partial<Config.Options>) {
-        // Initialize Config as object-collection type.
-        this.config = ObjectCollectionTyped.useCloned(DefaultConfig).merge(config);
+        try {
+            // Initialize Config as object-collection type.
+            this.config = ObjectCollectionTyped.useCloned(DefaultConfig).merge(config);
 
-        // setup date
-        this.setupDate();
+            // setup date
+            this.setupDate();
 
-        // Update Options
-        this.updateOptions(options);
+            // Update Options
+            this.updateOptions(options);
 
-        // Load xpresser's Package.json file
-        this.loadPackageDotJsonFile();
+            // Load xpresser's Package.json file
+            this.loadPackageDotJsonFile();
 
-        // Initialize ConsoleEngine
-        this.console = new ConsoleEngine(this);
+            // Initialize ConsoleEngine
+            this.console = new ConsoleEngine(this);
 
-        // Initialize PathEngine
-        this.path = new PathEngine(this).resolveConfigPaths();
+            // Initialize PathEngine
+            this.path = new PathEngine(this).resolveConfigPaths();
 
-        /**
-         * Since $.on can be populated by other engines,
-         * We need to override the default getter
-         * And throw an error if a particular boot cycle key is not found
-         */
-        this.on = new Proxy({} as BootCycle.On, {
-            get: (target, prop: BootCycle.Keys) => {
-                if (!this.bootCycles[prop] && prop.slice(-1) !== "$") {
-                    this.console.logErrorAndExit(
-                        new InXpresserError(
-                            `$.on.${prop} has not been initialized or is not a valid boot cycle name.`
-                        )
-                    );
+            /**
+             * Since $.on can be populated by other engines,
+             * We need to override the default getter
+             * And throw an error if a particular boot cycle key is not found
+             */
+            this.on = new Proxy({} as BootCycle.On, {
+                get: (target, prop: BootCycle.Keys) => {
+                    if (!this.bootCycles[prop] && prop.slice(-1) !== "$") {
+                        this.console.logErrorAndExit(
+                            new InXpresserError(
+                                `$.on.${prop} has not been initialized or is not a valid boot cycle name.`
+                            )
+                        );
+                    }
+
+                    return target[prop];
                 }
+            });
 
-                return target[prop];
-            }
-        });
+            // Initialize Boot Cycle Functions
+            BootCycleEngine.initialize(this);
 
-        // Initialize Boot Cycle Functions
-        BootCycleEngine.initialize(this);
-
-        // Initialize Modules
-        this.modules = new ModulesEngine(this);
+            // Initialize Modules
+            this.modules = new ModulesEngine(this);
+        } catch (e: any) {
+            throw InXpresserError.use(e);
+        }
     }
 
     /**
      * Equips any xpresser engine with the current xpresser instance
      * @param engine
      */
-    engine<Engine extends typeof BaseEngine>(engine: Engine) {
+    engine<Engine extends typeof BaseEngine<any>>(engine: Engine) {
         return new engine(this) as InstanceType<Engine>;
     }
 

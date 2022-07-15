@@ -2,7 +2,7 @@ import PATH from "node:path";
 import InXpresserError from "../errors/InXpresserError.js";
 import { removeLeadingSlash } from "../functions/path.js";
 import type Config from "../types/configs.js";
-import BaseEngine from "./BaseEngine.js";
+import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 
 export declare module SmartPaths {
     enum Add {
@@ -23,6 +23,10 @@ export declare module SmartPaths {
 }
 
 class PathEngine extends BaseEngine {
+    static config: BaseEngineConfig = {
+        name: "Xpresser/PathEngine"
+    };
+
     smartAliases: SmartPaths.Aliases = {
         npm: "node_modules"
     };

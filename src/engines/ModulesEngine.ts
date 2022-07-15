@@ -1,4 +1,4 @@
-import BaseEngine from "./BaseEngine.js";
+import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseModule, { type Modules } from "../modules/base.module.js";
 import type { BootCycle } from "./BootCycleEngine.js";
@@ -22,6 +22,10 @@ declare module "../types/engine-data.js" {
  * Default ModulesEngine Class
  */
 export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
+    static config: BaseEngineConfig = {
+        name: "Xpresser/ModulesEngine"
+    };
+
     private default: Modules.Keywords = "server";
     // protected readonly initialized: Record<string, InstanceType<typeof BaseModule>> = {};
     protected readonly registered: Record<string, typeof BaseModule> = {};
@@ -126,7 +130,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Register Server Module
      */
     async useServerModule() {
-        const ServerModule = await import("../modules/server.module.js");
+        const ServerModule = await import("../modules/server/server.module.js");
         return this.register(ServerModule.default);
     }
 
@@ -134,7 +138,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Register Console Module
      */
     async useConsoleModule() {
-        const ConsoleModule = await import("../modules/console.module.js");
+        const ConsoleModule = await import("../modules/console/console.module.js");
         return this.register(ConsoleModule.default);
     }
 }

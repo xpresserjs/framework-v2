@@ -1,15 +1,15 @@
-import { BootCycleFunction } from "../engines/BootCycleEngine.js";
-import BaseModule from "./base.module.js";
+import { BootCycleFunction } from "../../engines/BootCycleEngine.js";
+import BaseModule, { BaseModuleConfig } from "../base.module.js";
 
 /**
  * Add EngineData types
  */
 export interface ConsoleModuleEngineData {
     mainCommand: string;
-    otherCommands: string[];
+    subCommands: string[];
 }
 
-declare module "../types/engine-data.js" {
+declare module "../../types/engine-data.js" {
     module EngineData {
         interface ModulesMemory {
             ConsoleModule: ConsoleModuleEngineData;
@@ -20,7 +20,7 @@ declare module "../types/engine-data.js" {
 /**
  * Add BootCycle types
  */
-declare module "../engines/BootCycleEngine.js" {
+declare module "../../engines/BootCycleEngine.js" {
     module BootCycle {
         enum Cycles {
             consoleInit = "consoleInit",
@@ -32,7 +32,7 @@ declare module "../engines/BootCycleEngine.js" {
 /**
  * Add Modules Related Types
  */
-declare module "../modules/base.module.js" {
+declare module "../../modules/base.module.js" {
     module Modules {
         export enum Available {
             cli = "ConsoleModule"
@@ -45,6 +45,11 @@ declare module "../modules/base.module.js" {
  * key: cli
  */
 class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
+    // Module Config
+    static config: BaseModuleConfig = {
+        name: "Xpresser/ConsoleModule"
+    };
+
     // ModulesEngine launch keyword
     static keyword: string = "cli";
 
@@ -66,6 +71,8 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     }
 
     async init() {
+        if (this.initialized) return;
+
         // get console args
         const args = ConsoleModule.getConsoleArgs();
 
@@ -92,7 +99,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         this.memory.data.mainCommand = mainCommand;
 
         // save other commands to engineData
-        this.memory.data.otherCommands = otherCommands;
+        this.memory.data.subCommands = otherCommands;
 
         // Run on started boot cycle
         this.$.on.started(
@@ -101,6 +108,9 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
                 return next();
             })
         );
+
+        // Mark as initialized
+        this.initialized = true;
     }
 
     async boot() {

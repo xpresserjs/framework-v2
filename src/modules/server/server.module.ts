@@ -1,10 +1,10 @@
-import BaseModule from "./base.module.js";
+import BaseModule from "../base.module.js";
 
 /**
  * Add BootCycle types
  */
 
-declare module "../engines/BootCycleEngine.js" {
+declare module "../../engines/BootCycleEngine.js" {
     module BootCycle {
         enum Cycles {
             expressInit = "expressInit",
@@ -20,7 +20,7 @@ declare module "../engines/BootCycleEngine.js" {
 /**
  * Add Modules Related Types
  */
-declare module "../modules/base.module.js" {
+declare module "../../modules/base.module.js" {
     module Modules {
         enum Available {
             server = "ServerModule"
@@ -48,7 +48,7 @@ class ServerModule extends BaseModule {
         ];
     }
 
-    async init() {}
+    init() {}
 }
 
 export default ServerModule;

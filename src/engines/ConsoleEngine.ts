@@ -2,11 +2,16 @@ import os from "node:os";
 import chalk from "chalk";
 import { touchMyMustache } from "../functions/inbuilt.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import BaseEngine from "./BaseEngine.js";
+import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import type { Crawl } from "../types/path-crawler.js";
 import type Configs from "../types/configs.js";
 
 export default class ConsoleEngine extends BaseEngine {
+    static config: BaseEngineConfig = {
+        name: "Xpresser/ConsoleEngine",
+        uniqueMemory: true
+    };
+
     /**
      * Logs a message to the console.
      * @param args
