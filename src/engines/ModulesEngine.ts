@@ -22,12 +22,26 @@ declare module "../types/engine-data.js" {
  * Default ModulesEngine Class
  */
 export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
+    /**
+     * Base Engine Config
+     */
     static config: BaseEngineConfig = {
         name: "Xpresser/ModulesEngine"
     };
 
+    /**
+     * Active Module Instance
+     */
+    protected activeInstance?: BaseModule<any>;
+
+    /**
+     * Default
+     */
     private default: Modules.Keywords = "server";
-    // protected readonly initialized: Record<string, InstanceType<typeof BaseModule>> = {};
+
+    /**
+     * Registered Modules
+     */
     protected readonly registered: Record<string, typeof BaseModule> = {};
 
     /**
@@ -108,6 +122,14 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     }
 
     /**
+     * Get the active module instance.
+     */
+    public getActiveInstance<Module extends BaseModule<any>>() {
+        if (!this.activeInstance) throw new InXpresserError(`No active module instance found!`);
+        return this.activeInstance as Module;
+    }
+
+    /**
      * Loads and initializes the current active module.
      */
     public async initializeActiveModule() {
@@ -124,6 +146,9 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
 
         // Initialize module
         await module.init();
+
+        // Set as active instance
+        this.activeInstance = module;
     }
 
     /**

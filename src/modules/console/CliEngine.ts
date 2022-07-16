@@ -2,8 +2,46 @@ import type { Xpresser } from "../../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
 import BaseEngine, { BaseEngineConfig } from "../../engines/BaseEngine.js";
 import ConsoleModule, { ConsoleModuleEngineData } from "./console.module.js";
+import File from "../../classes/File.js";
 
-export default class CliEngine extends BaseEngine {
+export declare module CliEngine {
+    /**
+     * Available Console Commands
+     */
+    export enum Commands {
+        help = "help"
+    }
+
+    /**
+     * key of Commands
+     */
+    export type commands = keyof typeof Commands;
+
+    /**
+     * CliCommand Action Interface
+     */
+    export type CommandAction = (ctx: { args: string[]; $: Xpresser }) => void;
+
+    /**
+     * A CliCommand interface
+     */
+    export interface Command {
+        name: string;
+        description: string;
+        action: CommandAction;
+    }
+
+    /**
+     * Cli Commands Map Type
+     */
+    type CommandsMap = Map<commands, Command>;
+}
+
+// Used to add commands
+type CommandWithoutName = Omit<CliEngine.Command, "name"> & { name?: string };
+type CommandsObject = Record<string, CommandWithoutName>;
+
+export class CliEngine extends BaseEngine {
     static config: BaseEngineConfig = {
         name: "Xpresser/CliEngine",
         uniqueMemory: false
@@ -12,13 +50,16 @@ export default class CliEngine extends BaseEngine {
     /**
      * Console Module Engine Data
      */
-    private readonly ConsoleModuleEngineData: ObjectCollectionTyped<ConsoleModuleEngineData>;
+    private readonly ConsoleModuleEngineData!: ObjectCollectionTyped<ConsoleModuleEngineData>;
 
     constructor($: Xpresser) {
         super($);
 
         // Get ConsoleModule memory data
-        this.ConsoleModuleEngineData = ConsoleModule.$engineData($);
+        Object.defineProperty(this, "ConsoleModuleEngineData", {
+            enumerable: false,
+            value: ConsoleModule.$engineData($)
+        });
     }
 
     /**
@@ -34,4 +75,56 @@ export default class CliEngine extends BaseEngine {
     get subCommands() {
         return this.ConsoleModuleEngineData.data.subCommands;
     }
+
+    /**
+     * Add cli command
+     */
+    addCommand(
+        name: string,
+        command: CommandWithoutName | (($super?: CliEngine.Command) => CommandWithoutName)
+    ) {
+        const consoleModule = this.$.modules.getActiveInstance<ConsoleModule>();
+        const commands = consoleModule.commands as Map<string, CliEngine.Command>;
+
+        // get previous command with same name.
+        // this aids extending commands
+        const $super = commands.get(name);
+        command = typeof command === "function" ? command($super) : command;
+
+        // override previous command name
+        command.name = name;
+        // name function for debugging purposes
+        Object.defineProperty(command.action, "name", { value: `command:${name}` });
+
+        // add command
+        commands.set(name, command as CliEngine.Command);
+
+        return this;
+    }
+
+    async addCommandFile(filePath: string) {
+        filePath = this.$.path.resolve(filePath);
+        let commands: CommandsObject;
+
+        try {
+            commands = (await import(filePath)).default as CommandsObject;
+        } catch (e) {
+            throw new Error(`Failed to load command file: ${filePath}`);
+        }
+
+        for (let [key, command] of Object.entries(commands)) {
+            this.addCommand(key, command);
+        }
+
+        return this;
+    }
+}
+
+/**
+ * Define Commands
+ * @param commands - Commands
+ * @returns
+ */
+export function defineCommands(commands: CommandsObject) {
+    return commands;
 }

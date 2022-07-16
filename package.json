@@ -14,9 +14,9 @@
     "build:before": "rm -rf dist",
     "build:after": "rm dist/package.json",
     "dev:ts": "npx nodemon dev/test.ts",
-    "dev:ts:cli": "npx nodemon dev/test.ts -- cli hello",
+    "dev:ts:cli": "npx nodemon dev/test.ts -- cli hello world",
     "dev:js": "npx nodemon dist/dev/test.js",
-    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli hello"
+    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli hello world"
   },
   "engines": {
     "node": ">=14.16"

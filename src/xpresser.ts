@@ -2,7 +2,7 @@ import PATH from "node:path";
 import { ObjectCollection, ObjectCollectionTyped } from "object-collection";
 import InXpresserError from "./errors/InXpresserError.js";
 import File from "./classes/File.js";
-import { __dirname } from "./functions/path.js";
+import { __dirname, __filename } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
 import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig } from "./config.js";
@@ -108,6 +108,8 @@ export class Xpresser {
 
             // Initialize PathEngine
             this.path = new PathEngine(this).resolveConfigPaths();
+
+            // const isTs = __filename(import.meta.url).endsWith(".ts");
 
             /**
              * Since $.on can be populated by other engines,

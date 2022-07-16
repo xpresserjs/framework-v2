@@ -23,7 +23,7 @@ export default class BaseModule<MemoryData = Record<string, any>> {
     /**
      * Holds the module memory data.
      */
-    protected memory: ObjectCollectionTyped<MemoryData>;
+    protected memory!: ObjectCollectionTyped<MemoryData>;
 
     /**
      * Holds the current initialized state of this module.
@@ -88,7 +88,7 @@ export default class BaseModule<MemoryData = Record<string, any>> {
         }
 
         // Create memory data
-        this.memory = engines.path(name) as ObjectCollectionTyped<MemoryData>;
+        Object.defineProperty(this, "memory", { enumerable: false, value: engines.path(name) });
     }
 
     /**

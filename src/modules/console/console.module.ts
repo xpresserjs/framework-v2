@@ -1,5 +1,7 @@
 import { BootCycleFunction } from "../../engines/BootCycleEngine.js";
+import InXpresserError from "../../errors/InXpresserError.js";
 import BaseModule, { BaseModuleConfig } from "../base.module.js";
+import type { CliEngine } from "./CliEngine.js";
 
 /**
  * Add EngineData types
@@ -53,6 +55,14 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     // ModulesEngine launch keyword
     static keyword: string = "cli";
 
+    // Commands
+    public commands: CliEngine.CommandsMap = new Map();
+
+    /**
+     * Get console args
+     * @param exclude
+     * @returns
+     */
     static getConsoleArgs(exclude: number = 3) {
         // clone process.argv
         // prevent changing process.argv
@@ -116,6 +126,21 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     async boot() {
         await this.$.runBootCycle("consoleInit");
         await this.$.runBootCycle("consoleReady");
+        await this.#runCurrentCommand();
+    }
+
+    async #runCurrentCommand() {
+        const { mainCommand, subCommands } = this.memory.data;
+        const command = this.commands.get(mainCommand as CliEngine.commands);
+
+        if (!command) return this.console.logErrorAndExit(`Command "${mainCommand}" not found!`);
+
+        try {
+            // Run command
+            await command.action({ args: subCommands, $: this.$ });
+        } catch (e: any) {
+            this.console.logErrorAndExit(InXpresserError.use(e));
+        }
     }
 }
 

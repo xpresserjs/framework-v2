@@ -70,6 +70,7 @@ class PathEngine extends BaseEngine {
     /**
      * Resolve a path, or smart path.
      * @param paths - Paths to resolve
+     * @param options
      * @returns string
      */
     resolve(

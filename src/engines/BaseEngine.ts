@@ -23,7 +23,7 @@ export default class BaseEngine<MemoryData = Record<string, any>> {
     /**
      * BaseEngine Memory Data
      */
-    protected memory: ObjectCollectionTyped<MemoryData>;
+    protected memory!: ObjectCollectionTyped<MemoryData>;
 
     constructor($: Xpresser) {
         // Get Engine Settings
@@ -61,7 +61,7 @@ export default class BaseEngine<MemoryData = Record<string, any>> {
         }
 
         // Create memory data
-        this.memory = engines.path(name) as ObjectCollectionTyped<MemoryData>;
+        Object.defineProperty(this, "memory", { enumerable: false, value: engines.path(name) });
     }
 
     /**
