@@ -1,8 +1,7 @@
 import type { Xpresser } from "../../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
 import BaseEngine, { BaseEngineConfig } from "../../engines/BaseEngine.js";
-import ConsoleModule, { ConsoleModuleEngineData } from "./console.module.js";
-import File from "../../classes/File.js";
+import ConsoleModule, { ConsoleModuleEngineData } from "./ConsoleModule.js";
 
 export declare module CliEngine {
     /**
@@ -28,6 +27,7 @@ export declare module CliEngine {
     export interface Command {
         name: string;
         description: string;
+        args?: Record<string, boolean>;
         action: CommandAction;
     }
 
@@ -39,7 +39,10 @@ export declare module CliEngine {
 
 // Used to add commands
 type CommandWithoutName = Omit<CliEngine.Command, "name"> & { name?: string };
-type CommandsObject = Record<string, CommandWithoutName>;
+type CommandsObject = Record<
+    string,
+    CommandWithoutName | (($super?: CliEngine.Command) => CommandWithoutName)
+>;
 
 export class CliEngine extends BaseEngine {
     static config: BaseEngineConfig = {
@@ -102,6 +105,11 @@ export class CliEngine extends BaseEngine {
         return this;
     }
 
+    /**
+     * Add cli commands from a file.
+     * @param filePath - Path to command file
+     * @returns
+     */
     async addCommandFile(filePath: string) {
         filePath = this.$.path.resolve(filePath);
         let commands: CommandsObject;

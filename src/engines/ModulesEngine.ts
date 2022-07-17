@@ -1,6 +1,6 @@
 import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import BaseModule, { type Modules } from "../modules/base.module.js";
+import BaseModule, { type Modules } from "../modules/BaseModule.js";
 import type { BootCycle } from "./BootCycleEngine.js";
 
 /**
@@ -163,7 +163,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Register Console Module
      */
     async useConsoleModule() {
-        const ConsoleModule = await import("../modules/console/console.module.js");
+        const ConsoleModule = await import("../modules/console/ConsoleModule.js");
         return this.register(ConsoleModule.default);
     }
 }

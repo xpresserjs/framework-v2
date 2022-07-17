@@ -1,4 +1,4 @@
-import BaseModule from "../base.module.js";
+import BaseModule from "../BaseModule.js";
 
 /**
  * Add BootCycle types
@@ -20,7 +20,7 @@ declare module "../../engines/BootCycleEngine.js" {
 /**
  * Add Modules Related Types
  */
-declare module "../../modules/base.module.js" {
+declare module "../../modules/BaseModule.js" {
     module Modules {
         enum Available {
             server = "ServerModule"

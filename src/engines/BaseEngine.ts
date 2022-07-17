@@ -78,7 +78,7 @@ export default class BaseEngine<MemoryData = Record<string, any>> {
      * Static Self Reference
      * @returns
      */
-    $static<Self extends typeof BaseEngine>() {
+    protected $static<Self extends typeof BaseEngine>() {
         return this.constructor as Self;
     }
 }

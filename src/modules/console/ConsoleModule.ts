@@ -1,7 +1,8 @@
 import { BootCycleFunction } from "../../engines/BootCycleEngine.js";
 import InXpresserError from "../../errors/InXpresserError.js";
-import BaseModule, { BaseModuleConfig } from "../base.module.js";
-import type { CliEngine } from "./CliEngine.js";
+import { __dirname } from "../../functions/path.js";
+import BaseModule, { BaseModuleConfig } from "../BaseModule.js";
+import { CliEngine } from "./CliEngine.js";
 
 /**
  * Add EngineData types
@@ -34,7 +35,7 @@ declare module "../../engines/BootCycleEngine.js" {
 /**
  * Add Modules Related Types
  */
-declare module "../../modules/base.module.js" {
+declare module "../../modules/BaseModule.js" {
     module Modules {
         export enum Available {
             cli = "ConsoleModule"
@@ -47,15 +48,21 @@ declare module "../../modules/base.module.js" {
  * key: cli
  */
 class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
-    // Module Config
+    /**
+     * Module Config.
+     */
     static config: BaseModuleConfig = {
         name: "Xpresser/ConsoleModule"
     };
 
-    // ModulesEngine launch keyword
+    /**
+     * Module Launch keyword.
+     */
     static keyword: string = "cli";
 
-    // Commands
+    /**
+     * Commands Map
+     */
     public commands: CliEngine.CommandsMap = new Map();
 
     /**
@@ -72,6 +79,9 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         return clonedArgs.splice(exclude);
     }
 
+    /**
+     * Custom boot cycles
+     */
     static customBootCycles() {
         return [
             // list of boot cycles available on this module
@@ -80,6 +90,10 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         ];
     }
 
+    /**
+     * Initialize Module
+     * @returns Promise<void>
+     */
     async init() {
         if (this.initialized) return;
 
@@ -119,21 +133,63 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
             })
         );
 
-        // Mark as initialized
+        // Mark as initialized.
         this.initialized = true;
     }
 
+    /**
+     * Boot Module
+     */
     async boot() {
+        await this.#addDefaultCommands();
         await this.$.runBootCycle("consoleInit");
         await this.$.runBootCycle("consoleReady");
         await this.#runCurrentCommand();
     }
 
+    /**
+     * Add default commands
+     */
+    async #addDefaultCommands() {
+        const path = this.$.path.resolve([__dirname(import.meta.url), "commands/default.js"]);
+        await this.$.engine(CliEngine).addCommandFile(path);
+    }
+
+    /**
+     * Run the current command.
+     * @returns Promise<void>
+     */
     async #runCurrentCommand() {
         const { mainCommand, subCommands } = this.memory.data;
         const command = this.commands.get(mainCommand as CliEngine.commands);
 
-        if (!command) return this.console.logErrorAndExit(`Command "${mainCommand}" not found!`);
+        if (!command) return this.console.logError(`Command "${mainCommand}" not found!`);
+
+        // Check if subCommands has enough args for the command
+        if (command.args) {
+            // Find arguments where value is true
+            let numberOfRequiredArgs = Object.values(command.args).filter(
+                (arg) => arg === true
+            ).length;
+
+            // if sub arguments are less than required, return error
+            if (subCommands.length < numberOfRequiredArgs) {
+                const missingArgs = Object.entries(command.args)
+                    .filter((arg) => arg[1] === true)
+                    .reduce((arr, arg) => {
+                        arr.push(arg[0]);
+                        return arr;
+                    }, [] as string[]);
+
+                const argumentsText = missingArgs.length > 1 ? "arguments" : "argument";
+
+                this.console.logError(
+                    `Command "${mainCommand}" requires a minimum of (${numberOfRequiredArgs}) ${argumentsText}!!`
+                );
+
+                return this.console.log(`Required ${argumentsText}: [${missingArgs.join(", ")}]`);
+            }
+        }
 
         try {
             // Run command
