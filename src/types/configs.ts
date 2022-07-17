@@ -1,4 +1,4 @@
-declare module Config {
+export declare module Config {
     export interface Debug {
         /**
          * If set to false all debugging && debug logs are disabled
@@ -276,7 +276,7 @@ declare module Config {
         /**
          * Paths Object
          */
-        paths: Paths;
+        paths: Partial<Paths>;
 
         /**
          * Debug configurations
@@ -319,5 +319,3 @@ declare module Config {
         };
     };
 }
-
-export default Config;

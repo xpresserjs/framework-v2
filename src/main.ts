@@ -1,7 +1,7 @@
 /**
  * Initialize Main
  */
-import type Config from "./types/configs.js";
+import type { Config } from "./types/configs.js";
 import { Xpresser } from "./xpresser.js";
 
 /**

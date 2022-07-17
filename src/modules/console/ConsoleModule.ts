@@ -21,6 +21,21 @@ declare module "../../types/engine-data.js" {
 }
 
 /**
+ * Extend App Config
+ */
+export interface ConsoleModuleConfig {
+    defaultCommand?: string;
+}
+
+declare module "../../types/configs.js" {
+    module Config {
+        interface Main {
+            cli?: Partial<ConsoleModuleConfig>;
+        }
+    }
+}
+
+/**
  * Add BootCycle types
  */
 declare module "../../engines/BootCycleEngine.js" {
@@ -110,8 +125,15 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
             process.argv.length = process.argv.length - 1;
         }
 
+        // set default config
+        this.setDefaultConfig();
+        const { defaultCommand } = this.$.config.data.cli!;
+
         // return error if no command is defined.
-        if (!args.length) return this.console.logError("No command provided!");
+        if (!args.length) {
+            if (defaultCommand) args.push(defaultCommand);
+            else return this.console.logError("No command provided!");
+        }
 
         // get main command
         let [mainCommand, ...otherCommands] = args;
@@ -137,6 +159,16 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         this.initialized = true;
     }
 
+    setDefaultConfig() {
+        const currentConfig = this.$.config.get("cli", {});
+        const defaultConfig: ConsoleModuleConfig = {
+            defaultCommand: "ls"
+        };
+
+        // merge default config with current config
+        this.$.config.set("cli", { ...defaultConfig, ...currentConfig });
+    }
+
     /**
      * Boot Module
      */
@@ -144,14 +176,18 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         await this.#addDefaultCommands();
         await this.$.runBootCycle("consoleInit");
         await this.$.runBootCycle("consoleReady");
+        console.log(); // space
         await this.#runCurrentCommand();
+        console.log(); // space
     }
 
     /**
      * Add default commands
      */
     async #addDefaultCommands() {
+        // path to default commands
         const path = this.$.path.resolve([__dirname(import.meta.url), "commands/default.js"]);
+        // add path.
         await this.$.engine(CliEngine).addCommandFile(path);
     }
 
@@ -168,14 +204,12 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         // Check if subCommands has enough args for the command
         if (command.args) {
             // Find arguments where value is true
-            let numberOfRequiredArgs = Object.values(command.args).filter(
-                (arg) => arg === true
-            ).length;
+            let numberOfRequiredArgs = Object.values(command.args).filter((arg) => arg).length;
 
             // if sub arguments are less than required, return error
             if (subCommands.length < numberOfRequiredArgs) {
                 const missingArgs = Object.entries(command.args)
-                    .filter((arg) => arg[1] === true)
+                    .filter((arg) => arg[1])
                     .reduce((arr, arg) => {
                         arr.push(arg[0]);
                         return arr;

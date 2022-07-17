@@ -2,7 +2,7 @@
  * This file represents the default config.
  * This config will be merged with the current app config
  */
-import Config from "./types/configs.js";
+import { Config } from "./types/configs.js";
 
 export const DefaultConfig: Config.Main = {
     name: "Xpresser",

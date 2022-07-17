@@ -4,7 +4,7 @@ import { touchMyMustache } from "../functions/inbuilt.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import type { Crawl } from "../types/path-crawler.js";
-import type Configs from "../types/configs.js";
+import type { Config } from "../types/configs.js";
 
 export default class ConsoleEngine extends BaseEngine {
     static config: BaseEngineConfig = {
@@ -287,7 +287,7 @@ export default class ConsoleEngine extends BaseEngine {
      */
     typedDebugIf(key: string, logCalmly: string): void;
     typedDebugIf(key: string, fn: () => void): void;
-    typedDebugIf<ConfigPath extends Crawl<Configs.Debug>>(
+    typedDebugIf<ConfigPath extends Crawl<Config.Debug>>(
         key: ConfigPath,
         fn: string | (() => void)
     ): void {

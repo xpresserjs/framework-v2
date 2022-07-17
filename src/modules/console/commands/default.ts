@@ -4,6 +4,18 @@ import type ConsoleModule from "../ConsoleModule.js";
 
 export default defineCommands({
     /**
+     * config - Show Config
+     */
+    config: {
+        description: "Show config in console.",
+        args: { path: false },
+        action: async ({ args, $ }) => {
+            const path = args[0];
+            console.dir(path ? $.config.get(path) : $.config.all(), { depth: null });
+        }
+    },
+
+    /**
      * ls - List all commands
      */
     ls: {

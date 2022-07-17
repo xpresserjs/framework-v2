@@ -7,7 +7,7 @@ import ConsoleEngine from "./engines/ConsoleEngine.js";
 import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig } from "./config.js";
 import ModulesEngine from "./engines/ModulesEngine.js";
-import type Config from "./types/configs.js";
+import type { Config } from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import PathEngine from "./engines/PathEngine.js";
