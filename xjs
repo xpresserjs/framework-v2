@@ -1,2 +1,3 @@
+#!/bin/bash
 # Xjs Bash File.
 node dist/dev/test.js cli $@

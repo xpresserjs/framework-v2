@@ -7,7 +7,7 @@ import type { BootCycle } from "./BootCycleEngine.js";
  * Add EngineData types
  */
 export interface ModuleEngineMemoryData {
-    activeModule: string;
+    activeModule?: string;
 }
 
 declare module "../types/engine-data.js" {
@@ -37,7 +37,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Default
      */
-    private default: Modules.Keywords = "server";
+    private default?: Modules.Keywords;
 
     /**
      * Registered Modules
@@ -109,7 +109,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         if (this.memory.data.activeModule) return this.memory.data.activeModule;
 
         // The second argument passed to console is the active module
-        let activeModule = process.argv[2];
+        let activeModule: string | undefined = process.argv[2];
 
         // if no active module, return default
         if (!activeModule) activeModule = this.default;
@@ -134,6 +134,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      */
     public async initializeActiveModule() {
         const activeModule = this.getActive() as Modules.Keywords;
+        if (!activeModule) return this.$.console.logError(`No 'default' module found!`);
 
         // Assert if active module is not registered
         this.has(activeModule, true);

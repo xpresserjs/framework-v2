@@ -42,7 +42,7 @@ declare module "../../engines/BootCycleEngine.js" {
     module BootCycle {
         enum Cycles {
             consoleInit = "consoleInit",
-            consoleReady = "consoleReady"
+            consoleComplete = "consoleComplete"
         }
     }
 }
@@ -101,7 +101,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         return [
             // list of boot cycles available on this module
             "consoleInit",
-            "consoleReady"
+            "consoleComplete"
         ];
     }
 
@@ -173,12 +173,19 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
      * Boot Module
      */
     async boot() {
+        // add default commands
         await this.#addDefaultCommands();
+
+        // Run `consoleInit` boot cycle
         await this.$.runBootCycle("consoleInit");
-        await this.$.runBootCycle("consoleReady");
+
+        // Run current command
         console.log(); // space
         await this.#runCurrentCommand();
         console.log(); // space
+
+        // Run `consoleComplete` boot cycle
+        await this.$.runBootCycle("consoleComplete");
     }
 
     /**
@@ -229,7 +236,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
             // Run command
             await command.action({ args: subCommands, $: this.$ });
         } catch (e: any) {
-            this.console.logErrorAndExit(InXpresserError.use(e));
+            return this.console.logError(InXpresserError.use(e));
         }
     }
 }

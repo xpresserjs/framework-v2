@@ -119,10 +119,8 @@ export class Xpresser {
             this.on = new Proxy({} as BootCycle.On, {
                 get: (target, prop: BootCycle.Keys) => {
                     if (!this.bootCycles[prop] && prop.slice(-1) !== "$") {
-                        this.console.logErrorAndExit(
-                            new InXpresserError(
-                                `$.on.${prop} has not been initialized or is not a valid boot cycle name.`
-                            )
+                        throw new InXpresserError(
+                            `$.on.${prop} has not been initialized or is not a valid boot cycle name.`
                         );
                     }
 
@@ -232,10 +230,8 @@ export class Xpresser {
      */
     runBootCycle(cycle: BootCycle.Keys) {
         if (!this.has.registeredModules) {
-            return this.console.logErrorAndExit(
-                new InXpresserError(
-                    `Cannot run boot cycle "${cycle}" before modules are registered.`
-                )
+            throw new InXpresserError(
+                `Cannot run boot cycle "${cycle}" before modules are registered.`
             );
         }
 

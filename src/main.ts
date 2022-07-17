@@ -12,24 +12,11 @@ import { Xpresser } from "./xpresser.js";
 export async function init(
     config: Config.InitConfig,
     // register cli and server modules by default
-    modules: Array<"cli" | "server"> = ["cli", "server"]
+    modules: Array<"server"> = ["server"]
 ): Promise<Xpresser> {
     const $ = new Xpresser(config);
 
-    try {
-        /**
-         * Use ConsoleEngine & Server Modules
-         */
-        if (modules.includes("cli")) {
-            await $.modules.useConsoleModule();
-        }
-
-        if (modules.includes("server")) {
-            await $.modules.useServerModule();
-        }
-    } catch (e) {
-        $.console.logErrorAndExit(e);
-    }
+    await $.modules.useConsoleModule();
 
     return $;
 }
