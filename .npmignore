@@ -1,0 +1,15 @@
+node_modules
+.idea
+.vscode
+dev
+about
+dist/dev
+
+yarn.lock
+*.log
+
+# TS
+*.ts
+!*.d.ts
+
+pnpm-lock.yaml

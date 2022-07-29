@@ -224,7 +224,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
 
                 const argumentsText = missingArgs.length > 1 ? "arguments" : "argument";
 
-                this.console.logError(
+                this.console.logWarning(
                     `Command "${mainCommand}" requires a minimum of (${numberOfRequiredArgs}) ${argumentsText}!!`
                 );
 

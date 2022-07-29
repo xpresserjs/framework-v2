@@ -8,4 +8,4 @@ Yay!! We are moving to Full **Typescript** and **ESM** support 💪
 
 - Bootstrap Application
 - Index App Paths
-- Provide an easily extensible structure.
+- Provide an easily extensible, yet powerful structure.
