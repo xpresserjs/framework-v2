@@ -8,7 +8,10 @@
   "license": "MIT",
   "private": false,
   "exports": {
-    "./*": "./dist/src/*.js"
+    "./*": {
+      "import": "./dist/src/*",
+      "types": "./dist/src/*.d.ts"
+    }
   },
   "scripts": {
     "watch": "npx tsc --watch",
