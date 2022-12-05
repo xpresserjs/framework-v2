@@ -35,7 +35,6 @@ class InXpresserError extends Error {
     }
 
     /**
-     * use
      * Convert an Error to an InXpresserError
      * @param e
      */
