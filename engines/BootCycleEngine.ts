@@ -1,5 +1,6 @@
 import type { Xpresser } from "../xpresser.js";
 import InXpresserError from "../errors/InXpresserError.js";
+import { NamedFunc } from "../functions/utils.js";
 
 export declare module BootCycle {
     // Boot Cycle Function
@@ -103,19 +104,5 @@ export function BootCycleFunction(name: string, fn: BootCycle.Func): BootCycle.F
  */
 export function BootCycleFunction(fn: BootCycle.Func, name: string): BootCycle.Func;
 export function BootCycleFunction(fn: BootCycle.Func | string, name?: string | BootCycle.Func) {
-    // if first argument is a string,
-    // we assume it is the name of the function
-    if (typeof fn === "string") {
-        const $name = fn;
-        fn = name as BootCycle.Func;
-        name = $name;
-    }
-
-    // Provide a name for the function if name is defined
-    // This is important because the name will be used
-    // to log errors
-    if (name) Object.defineProperty(fn, "name", { value: name });
-
-    // return the function
-    return fn;
+    return NamedFunc<BootCycle.Func>(fn as BootCycle.Func, name as string);
 }
