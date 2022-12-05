@@ -1,11 +1,9 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext"],
     "module": "NodeNext",
     "declaration": true,
-//    "isolatedModules": true,
-    "rootDir": "./",
+    "isolatedModules": true,
     "outDir": "./dist",
     "strict": true,
     "moduleResolution": "node16",
