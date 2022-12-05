@@ -1,9 +1,12 @@
 {
   "compilerOptions": {
-    "target": "es2020",
+    "target": "ESNext",
+    "lib": ["ESNext"],
     "module": "NodeNext",
     "declaration": true,
-    "outDir": "dist",
+    "isolatedModules": true,
+    "rootDir": "./",
+    "outDir": "./dist",
     "strict": true,
     "moduleResolution": "node16",
     "allowSyntheticDefaultImports": true,
@@ -12,11 +15,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "types": [
-      //      "./src/modules/types",
+      "@types/node",
     ]
   },
   "exclude": [
-    "dist",
+    "./node_modules",
+    "./dist",
     "package.json"
   ]
 }
