@@ -246,14 +246,14 @@ export default class ConsoleEngine extends BaseEngine {
     }
 
     /**
-     * Debug If checks if a debug config is enabled before it runs the function provided.
+     * debugIf checks if a debug config is enabled before it runs the function provided.
      * It is used heavily in the framework to debug certain parts of the code.
      *
      * @param key - debug config key to check
-     * @param fn - Function to run if key value is true
+     * @param message - message to log
      * @returns {void}
      */
-    debugIf(key: string, logCalmly: string): void;
+    debugIf(key: string, message: string): void;
     debugIf(key: string, fn: () => void): void;
     debugIf(key: string, fn: string | (() => void)): void {
         // get debug config
@@ -281,11 +281,11 @@ export default class ConsoleEngine extends BaseEngine {
      * But strictly typed debug config keys.
      * Currently experimental.
      * @param key - debug config key to check
-     * @param fn - Function to run if key value is true
+     * @param message - message or function to log
      * @experimental
      * @returns {void}
      */
-    typedDebugIf(key: string, logCalmly: string): void;
+    typedDebugIf(key: string, message: string): void;
     typedDebugIf(key: string, fn: () => void): void;
     typedDebugIf<ConfigPath extends Crawl<Config.Debug>>(
         key: ConfigPath,
