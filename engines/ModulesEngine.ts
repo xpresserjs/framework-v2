@@ -102,6 +102,15 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     }
 
     /**
+     * Register Module Using a function
+     */
+    async registerFn<M extends typeof BaseModule<any>>(fn: () => M | Promise<M>) {
+        const Module = await fn();
+        // Register Module
+        return this.register(Module);
+    }
+
+    /**
      * Get the current active modules.
      */
     public getActive() {
@@ -157,18 +166,12 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     }
 
     /**
-     * Register Server Module
-     */
-    async useServerModule() {
-        const ServerModule = await import("../modules/server/server.module.js");
-        return this.register(ServerModule.default);
-    }
-
-    /**
      * Register Console Module
      */
-    async useConsoleModule() {
-        const ConsoleModule = await import("../modules/console/ConsoleModule.js");
-        return this.register(ConsoleModule.default);
+    useConsoleModule() {
+        return this.registerFn(async () => {
+            const ConsoleModule = await import("../modules/console/ConsoleModule.js");
+            return ConsoleModule.default;
+        });
     }
 }

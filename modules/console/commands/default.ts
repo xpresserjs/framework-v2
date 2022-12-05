@@ -15,7 +15,7 @@ export default defineCommands({
              * Calculate the length of the key tab
              * This will be the length of the longest key + 10
              *
-             * First find the length of longest key.
+             * First find the length of the longest key.
              */
             let longestKeyLength = 0;
             for (const key of ["[Command]", ...cli.commands.keys()])
@@ -53,7 +53,7 @@ export default defineCommands({
                 );
             }
 
-            // Endline
+            // End-line
             $.console.logCalmly("-".repeat(50 + longestKeyLength));
             console.log(); // space
         }
@@ -75,7 +75,7 @@ export default defineCommands({
 /**
  * Add space to a string
  * @param str - String to add space to
- * @param length - length of longest key
+ * @param length - length of the longest key
  * @returns
  */
 function addSpace(str: string, length: number = 20) {

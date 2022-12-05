@@ -37,9 +37,7 @@ export default class BaseEngine<MemoryData = Record<string, any>> {
 
         // if no name throw error
         if (!config.name)
-            throw new InXpresserError(
-                `Engine with name: "${this.$static().name}" has no name configured.`
-            );
+            throw new InXpresserError(`Engine with name: "${config.name}" has no name configured.`);
 
         if (typeof config.uniqueMemory === "undefined") config.uniqueMemory = true;
 
