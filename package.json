@@ -3,26 +3,22 @@
   "version": "0.0.7",
   "description": "Xpresser v2 Core",
   "type": "module",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "repository": "https://github.com/xpresserjs/framework-v2",
   "author": "xpresserjs",
   "license": "MIT",
   "private": false,
-  "main": "build/index.js",
-  "exports": {
-    "./*": {
-      "import": "./dist/src/*",
-      "types": "./dist/src/*.d.ts"
-    }
-  },
+
   "scripts": {
     "watch": "npx tsc --watch",
     "build": "npm run build:before && npx tsc",
-    "build:before": "rm -rf dist",
-    "build:after": "rm dist/package.json",
+    "build:before": "rm -rf build",
+    "build:after": "rm build/package.json",
     "dev:ts": "npx nodemon dev/test.ts",
     "dev:ts:cli": "npx nodemon dev/test.ts -- cli ls",
-    "dev:js": "npx nodemon dist/dev/test.js",
-    "dev:js:cli": "npx nodemon dist/dev/test.js -- cli ls",
+    "dev:js": "npx nodemon build/dev/test.js",
+    "dev:js:cli": "npx nodemon build/dev/test.js -- cli ls",
     "prepublishOnly": "npm run build"
   },
   "engines": {

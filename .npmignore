@@ -3,9 +3,8 @@ node_modules
 .vscode
 dev
 about
-dist/dev
+build/dev
 
-yarn.lock
 *.log
 
 # TS

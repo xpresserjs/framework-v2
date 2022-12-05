@@ -50,7 +50,7 @@ declare module "../../engines/BootCycleEngine.js" {
 /**
  * Add Modules Related Types
  */
-declare module "../../modules/BaseModule.js" {
+declare module "../BaseModule.js" {
     module Modules {
         export enum Available {
             cli = "ConsoleModule"
