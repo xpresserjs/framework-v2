@@ -5,6 +5,12 @@
   "type": "module",
   "main": "build/index.js",
   "types": "build/index.d.ts",
+  "exports": {
+    "./*": {
+      "import": "./build/*",
+      "types": "./build/*.d.ts"
+    }
+  },
   "repository": "https://github.com/xpresserjs/framework-v2",
   "author": "xpresserjs",
   "license": "MIT",
