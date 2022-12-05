@@ -137,7 +137,11 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         if (!activeModule) return this.$.console.logError(`No 'default' module found!`);
 
         // Assert if active module is not registered
-        this.has(activeModule, true);
+        try {
+            this.has(activeModule, true);
+        } catch (e: any) {
+            return this.$.console.logErrorAndExit(e.message);
+        }
 
         // Load module
         const Module = this.registered[activeModule];
