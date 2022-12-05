@@ -4,7 +4,7 @@
     "lib": ["ESNext"],
     "module": "NodeNext",
     "declaration": true,
-    "isolatedModules": true,
+//    "isolatedModules": true,
     "rootDir": "./",
     "outDir": "./dist",
     "strict": true,
