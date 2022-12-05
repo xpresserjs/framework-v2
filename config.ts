@@ -42,31 +42,31 @@ export const DefaultConfig: Config.Main = {
         }
     },
 
-    server: {
-        maintenanceMiddleware: "MaintenanceMiddleware.js",
-        port: 2000,
-        protocol: "http",
-        domain: "localhost",
-        root: "/",
-        includePortInUrl: true,
-        baseUrl: "",
-        poweredBy: true,
-        servePublicFolder: true,
-
-        ssl: {
-            enabled: false,
-            port: 443
-        },
-
-        use: {
-            bodyParser: true,
-            flash: false
-        },
-
-        router: {
-            pathCase: "snake"
-        }
-    },
+    // server: {
+    //     maintenanceMiddleware: "MaintenanceMiddleware.js",
+    //     port: 2000,
+    //     protocol: "http",
+    //     domain: "localhost",
+    //     root: "/",
+    //     includePortInUrl: true,
+    //     baseUrl: "",
+    //     poweredBy: true,
+    //     servePublicFolder: true,
+    //
+    //     ssl: {
+    //         enabled: false,
+    //         port: 443
+    //     },
+    //
+    //     use: {
+    //         bodyParser: true,
+    //         flash: false
+    //     },
+    //
+    //     router: {
+    //         pathCase: "snake"
+    //     }
+    // },
 
     date: {
         timezone: null,
