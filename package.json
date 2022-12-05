@@ -1,6 +1,6 @@
 {
   "name": "@xpresser/framework",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Xpresser v2 Core",
   "type": "module",
   "repository": "https://github.com/xpresserjs/framework-v2",
