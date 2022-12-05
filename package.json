@@ -1,6 +1,6 @@
 {
   "name": "@xpresser/framework",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Xpresser v2 Core",
   "type": "module",
   "main": "build/index.js",
@@ -9,7 +9,6 @@
   "author": "xpresserjs",
   "license": "MIT",
   "private": false,
-
   "scripts": {
     "watch": "npx tsc --watch",
     "build": "npm run build:before && npx tsc",
