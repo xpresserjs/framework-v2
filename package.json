@@ -44,6 +44,7 @@
   "dependencies": {
     "chalk": "^5.1.2",
     "fs-extra": "^10.1.0",
+    "moment": "^2.29.4",
     "object-collection": "^4.1.3"
   }
 }

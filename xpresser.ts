@@ -11,6 +11,7 @@ import type { Config } from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import PathEngine from "./engines/PathEngine.js";
+import { getLocalExternalIp } from "./functions/inbuilt.js";
 
 export class Xpresser {
     /**
@@ -109,8 +110,6 @@ export class Xpresser {
             // Initialize PathEngine
             this.path = new PathEngine(this).resolveConfigPaths();
 
-            // const isTs = __filename(import.meta.url).endsWith(".ts");
-
             /**
              * Since $.on can be populated by other engines,
              * We need to override the default getter
@@ -133,6 +132,9 @@ export class Xpresser {
 
             // Initialize Modules
             this.modules = new ModulesEngine(this);
+
+            // Set LanIp
+            this.engineData.set("lanIp", getLocalExternalIp());
         } catch (e: any) {
             throw InXpresserError.use(e);
         }

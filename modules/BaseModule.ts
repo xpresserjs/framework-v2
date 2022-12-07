@@ -67,12 +67,6 @@ export default class BaseModule<MemoryData = Record<string, any>> {
                 `Engine with name: "${this.$static().name}" has no name configured.`
             );
 
-        // if no settings throw error
-        if (!config)
-            throw new InXpresserError(
-                `Engine with name: "${this.$static().name}" is not configured yet!.`
-            );
-
         // Get Module Name
         const name = config.name || this.$static().name;
 
