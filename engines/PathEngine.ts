@@ -67,6 +67,17 @@ class PathEngine extends BaseEngine {
         return this.smartPath(`storage://framework/${removeLeadingSlash(str)}`);
     }
 
+
+    /**
+     * Get path to jsonConfigs folder
+     * @param str - String to add to jsonConfig path
+     * @returns string
+     */
+    jsonConfigs(str: string = "") {
+        return this.smartPath(`jsonConfigs://${removeLeadingSlash(str)}`);
+    }
+
+
     /**
      * Resolve a path, or smart path.
      * @param paths - Paths to resolve

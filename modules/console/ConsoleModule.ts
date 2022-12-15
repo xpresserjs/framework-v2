@@ -204,7 +204,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
      */
     async #runCurrentCommand() {
         const { mainCommand, subCommands } = this.memory.data;
-        const command = this.commands.get(mainCommand as CliEngine.commands);
+        const command = this.commands.get(mainCommand);
 
         if (!command) return this.console.logError(`Command "${mainCommand}" not found!`);
 

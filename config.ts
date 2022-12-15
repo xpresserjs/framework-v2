@@ -8,6 +8,10 @@ export const DefaultConfig: Config.Main = {
     name: "Xpresser",
     env: "development",
 
+    log: {
+        plugins: true,
+    },
+
     debug: {
         enabled: true,
 

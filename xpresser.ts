@@ -12,6 +12,7 @@ import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import PathEngine from "./engines/PathEngine.js";
 import { getLocalExternalIp } from "./functions/inbuilt.js";
+import PluginEngine from "./engines/PluginEngine.js";
 
 export class Xpresser {
     /**
@@ -53,7 +54,7 @@ export class Xpresser {
     /**
      * Default Boot Cycles
      */
-    private readonly bootCycles: BootCycle.DefaultCycles = {
+    readonly #bootCycles: BootCycle.DefaultCycles = {
         beforeStart: [],
         start: [],
         boot: [],
@@ -68,7 +69,7 @@ export class Xpresser {
     /**
      * Has serves a source of truth for the current environment
      */
-    private readonly has = {
+     readonly #has = {
         /**
          * Set to true once modules have been initialized
          */
@@ -96,13 +97,13 @@ export class Xpresser {
             this.config = ObjectCollectionTyped.useCloned(DefaultConfig).merge(config);
 
             // setup date
-            this.setupDate();
+            this.#setupDate();
 
             // Update Options
             this.updateOptions(options);
 
             // Load xpresser's Package.json file
-            this.loadPackageDotJsonFile();
+            this.#loadPackageDotJsonFile();
 
             // Initialize ConsoleEngine
             this.console = new ConsoleEngine(this);
@@ -117,7 +118,7 @@ export class Xpresser {
              */
             this.on = new Proxy({} as BootCycle.On, {
                 get: (target, prop: BootCycle.Keys) => {
-                    if (!this.bootCycles[prop] && prop.slice(-1) !== "$") {
+                    if (!this.#bootCycles[prop] && prop.slice(-1) !== "$") {
                         throw new InXpresserError(
                             `$.on.${prop} has not been initialized or is not a valid boot cycle name.`
                         );
@@ -159,12 +160,12 @@ export class Xpresser {
 
     /**
      * Get list of all boot cycles.
-     * Since `bootCycles` is a private property,
+     * Since `#bootCycles` is a private property,
      * This method is used to get the list of all boot cycles.
-     * Preventing from modifying the `bootCycles` property.
+     * Preventing from modifying the `#bootCycles` property.
      */
     getBootCycles(): BootCycle.Keys[] {
-        return Object.keys(this.bootCycles) as BootCycle.Keys[];
+        return Object.keys(this.#bootCycles) as BootCycle.Keys[];
     }
 
     /**
@@ -174,8 +175,8 @@ export class Xpresser {
      */
     getBootCyclesStats() {
         const stats = {} as Record<BootCycle.Keys, number>;
-        for (const key of Object.keys(this.bootCycles) as BootCycle.Keys[]) {
-            stats[key] = this.bootCycles[key].length;
+        for (const key of Object.keys(this.#bootCycles) as BootCycle.Keys[]) {
+            stats[key] = this.#bootCycles[key].length;
         }
 
         return stats;
@@ -190,17 +191,17 @@ export class Xpresser {
     addToBootCycle(cycle: BootCycle.Keys, functions: BootCycle.Func | BootCycle.Func[]) {
         if (Array.isArray(functions)) {
             for (const fn of functions) {
-                this.bootCycles[cycle].push(fn);
+                this.#bootCycles[cycle].push(fn);
             }
         } else {
-            this.bootCycles[cycle].push(functions);
+            this.#bootCycles[cycle].push(functions);
         }
 
         return this;
     }
 
     /**
-     * Add Boot Cycle
+     * Add Boot Cycles
      * @param cycle
      */
     addBootCycle(cycle: BootCycle.Keys): this;
@@ -214,10 +215,10 @@ export class Xpresser {
 
         for (const cycle of cycles) {
             // check if cycle already exists
-            if (this.bootCycles[cycle]) throw Error(`Boot cycle "${cycle}" already exists.`);
+            if (this.#bootCycles[cycle]) throw Error(`Boot cycle "${cycle}" already exists.`);
 
             // set the cycle
-            this.bootCycles[cycle] = [];
+            this.#bootCycles[cycle] = [];
         }
 
         // Re-initialize Boot Cycle Functions
@@ -231,14 +232,14 @@ export class Xpresser {
      * @param cycle
      */
     runBootCycle(cycle: BootCycle.Keys) {
-        if (!this.has.registeredModules) {
+        if (!this.#has.registeredModules) {
             throw new InXpresserError(
                 `Cannot run boot cycle "${cycle}" before modules are registered.`
             );
         }
 
         // Check if cycle exists
-        if (!this.bootCycles[cycle]) {
+        if (!this.#bootCycles[cycle]) {
             throw new InXpresserError(`Boot cycle "${cycle}" does not exist.`);
         }
 
@@ -250,13 +251,13 @@ export class Xpresser {
         const completedKey = `cycles.${cycle}.completed`;
 
         if (engineData.has(completedKey) && engineData.get(completedKey) === true) {
-            // If cycle has already been completed,
+            // If cycle #has already been completed,
             // throw error to prevent from running it again
             throw new InXpresserError(`Boot cycle "${cycle}" can only run once.`);
         }
 
         // Get all cycle functions
-        const cycles = this.bootCycles[cycle];
+        const cycles = this.#bootCycles[cycle];
 
         // Return promise that will be resolved when all cycles are completed
         return new Promise<void>(async (resolve, reject) => {
@@ -384,7 +385,7 @@ export class Xpresser {
     /**
      * Same as `$.start`
      * @description
-     * Boot has been renamed to `start`
+     * Boot #has been renamed to `start`
      * This is because  `start` is the first boot cycle
      * So it makes sense to call it `start`
      * @deprecated
@@ -401,11 +402,11 @@ export class Xpresser {
      * Start the application
      */
     async start() {
-        // Log Error if instance has started already.
-        if (this.has.started) {
+        // Log Error if instance #has started already.
+        if (this.#has.started) {
             this.console.logError(
                 new InXpresserError(
-                    "$.start has already been called! Application has already started."
+                    "$.start #has already been called! Application #has already started."
                 )
             );
 
@@ -413,17 +414,20 @@ export class Xpresser {
         }
 
         // Set started to true
-        this.has.started = true;
+        this.#has.started = true;
 
         await this.modules.initializeActiveModule();
 
         // Set registered flag
-        this.has.registeredModules = true;
+        this.#has.registeredModules = true;
 
         await this.runBootCycle("beforeStart");
 
         // Run `start` cycle
         await this.runBootCycle("start");
+
+        // Load Plugins
+        await PluginEngine.loadPluginsFromJson(this)
 
         // Run `boot` cycle
         await this.runBootCycle("boot");
@@ -434,10 +438,17 @@ export class Xpresser {
         return this;
     }
 
+
+    /**
+     * ++++++++++ PRIVATE METHODS ++++++++++
+     * +++++++++++++++++++++++++++++++++++++
+     * +++++++++++++++++++++++++++++++++++++
+     */
+
     /**
      * Set timezone to process.env.TZ
      */
-    private setupDate() {
+    #setupDate() {
         // configure timezone
         const timezone = this.config.getTyped("date.timezone");
         if (timezone) process.env.TZ = timezone;
@@ -449,9 +460,8 @@ export class Xpresser {
      * Loads this package's package.json file
      * Save it to this.engineData collection
      * Using key "packageDotJson"
-     * @private
      */
-    private loadPackageDotJsonFile() {
+    #loadPackageDotJsonFile() {
         const currentDir = __dirname(import.meta.url);
         let packageDotJsonPath = PATH.resolve(currentDir, "../package.json");
 

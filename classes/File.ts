@@ -277,14 +277,14 @@ export default class File {
          * Check if path exists
          */
         if (!fileExists && !fs.existsSync(path)) {
-            throw Error(`File..readJson: Path (${path}) does not exists.`);
+            throw Error(`File.readJson: Path (${path}) does not exists.`);
         }
 
         try {
             const file = fs.readFileSync(path).toString();
             return JSON.parse(file) as T;
         } catch (e) {
-            throw Error(`File..readJson: Error parsing json file (${path})`);
+            throw Error(`File.readJson: Error parsing json file (${path})`);
         }
     }
 

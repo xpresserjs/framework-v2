@@ -220,7 +220,7 @@ export default class ConsoleEngine extends BaseEngine {
      * @param $logs
      * @param $spacePerLine
      */
-    logPerLine($logs: (string | Function)[] = [], $spacePerLine = false) {
+    logPerLine($logs: (string | Function | Record<string, any>)[] = [], $spacePerLine = false) {
         console.log(); // Spacing
         for (let i = 0; i < $logs.length; i++) {
             const $log = $logs[i];

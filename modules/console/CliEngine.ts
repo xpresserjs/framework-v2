@@ -4,17 +4,6 @@ import BaseEngine, { BaseEngineConfig } from "../../engines/BaseEngine.js";
 import ConsoleModule, { ConsoleModuleEngineData } from "./ConsoleModule.js";
 
 export declare module CliEngine {
-    /**
-     * Available Console Commands
-     */
-    export enum Commands {
-        help = "help"
-    }
-
-    /**
-     * key of Commands
-     */
-    export type commands = keyof typeof Commands;
 
     /**
      * CliCommand Action Interface
@@ -34,7 +23,7 @@ export declare module CliEngine {
     /**
      * Cli Commands Map Type
      */
-    type CommandsMap = Map<commands, Command>;
+    type CommandsMap = Map<string, Command>;
 }
 
 // Used to add commands
@@ -53,7 +42,7 @@ export class CliEngine extends BaseEngine {
     /**
      * Console Module Engine Data
      */
-    private readonly ConsoleModuleEngineData!: ObjectCollectionTyped<ConsoleModuleEngineData>;
+    readonly #ConsoleModuleEngineData!: ObjectCollectionTyped<ConsoleModuleEngineData>;
 
     constructor($: Xpresser) {
         super($);
@@ -69,14 +58,14 @@ export class CliEngine extends BaseEngine {
      * Get cli main command
      */
     get mainCommand() {
-        return this.ConsoleModuleEngineData.data.mainCommand;
+        return this.#ConsoleModuleEngineData.data.mainCommand;
     }
 
     /**
      * Get cli sub commands
      */
     get subCommands() {
-        return this.ConsoleModuleEngineData.data.subCommands;
+        return this.#ConsoleModuleEngineData.data.subCommands;
     }
 
     /**

@@ -1,11 +1,23 @@
 import Url from "node:url";
+import PATH from "node:path";
 
 /**
  * Provide cjs __dirname support.
  * @param url
+ * @param add
  */
-export function __dirname(url: string) {
-    return Url.fileURLToPath(new URL(".", url));
+export function __dirname(url: string, add?: string | string[]) {
+    const path = Url.fileURLToPath(new URL(".", url));
+
+    if (add) {
+        if (Array.isArray(add)) {
+            return PATH.join(path, ...add);
+        } else {
+            return PATH.join(path, add);
+        }
+    }
+
+    return path;
 }
 
 /**

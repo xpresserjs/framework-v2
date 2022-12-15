@@ -147,6 +147,10 @@ export declare module Config {
         routesFile: string;
     }
 
+    export interface Log {
+        plugins: boolean
+    }
+
     /**
      * Xpresser's main configuration.
      */
@@ -166,6 +170,12 @@ export declare module Config {
          * Paths Object
          */
         paths: Partial<Paths>;
+
+
+        /**
+         * Log Configuration
+         */
+        log: Partial<Log>
 
         /**
          * Debug configurations

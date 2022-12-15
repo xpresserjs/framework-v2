@@ -37,7 +37,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Default
      */
-    private default?: Modules.Keywords;
+    #default?: Modules.Keywords;
 
     /**
      * Registered Modules
@@ -56,7 +56,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         }
 
         // set as default
-        this.default = keyword;
+        this.#default = keyword;
         return this;
     }
 
@@ -121,7 +121,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         let activeModule: string | undefined = process.argv[2];
 
         // if no active module, return default
-        if (!activeModule) activeModule = this.default;
+        if (!activeModule) activeModule = this.#default;
 
         // save to engine
         this.memory.data.activeModule = activeModule;
@@ -173,5 +173,23 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
             const ConsoleModule = await import("../modules/console/ConsoleModule.js");
             return ConsoleModule.default;
         });
+    }
+
+    /**
+     * If is module
+     * Run the function passed to it.
+     */
+    ifIs(keyword: Modules.Keywords, fn: () => void) {
+        if (this.getActive() === keyword) fn();
+        return this;
+    }
+
+    /**
+     * If is not module
+     * Run the function passed to it.
+     */
+    ifIsNot(keyword: Modules.Keywords, fn: () => void) {
+        if (this.getActive() !== keyword) fn();
+        return this;
     }
 }
