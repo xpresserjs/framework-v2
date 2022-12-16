@@ -5,6 +5,7 @@ import InXpresserError from "../errors/InXpresserError.js";
 import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import type { Crawl } from "../types/path-crawler.js";
 import type { Config } from "../types/configs.js";
+import { upperFirst } from "lodash-es";
 
 export default class ConsoleEngine extends BaseEngine {
     static config: BaseEngineConfig = {
@@ -231,7 +232,7 @@ export default class ConsoleEngine extends BaseEngine {
                 const key = Object.keys($log)[0];
 
                 // @ts-ignore
-                this["log" + lodash.upperFirst(key)]($log[key]);
+                this["log" + upperFirst(key)]($log[key]);
             } else {
                 if (!$log.length) {
                     this.log();

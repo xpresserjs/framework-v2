@@ -42,8 +42,10 @@
     "typescript": "^4.9.3"
   },
   "dependencies": {
+    "@types/lodash-es": "^4.17.6",
     "chalk": "^5.1.2",
     "fs-extra": "^10.1.0",
+    "lodash-es": "^4.17.21",
     "moment": "^2.29.4",
     "object-collection": "^4.1.3"
   }

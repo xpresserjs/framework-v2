@@ -1,5 +1,7 @@
 import os from "node:os";
 import fs from "node:fs";
+import PATH from "node:path";
+import File from "../classes/File.js";
 
 /**
  * Get LanIp
@@ -67,4 +69,27 @@ export function touchMyMustache(str: string) {
 
     const match = str.match(new RegExp(/{{(.*?)}}/, "g"));
     return match ? match : [];
+}
+
+
+/**
+ * Find package.json in a given path.
+ * if no path is given, it will search from the parent directory.
+ * @param dir
+ */
+export function findPackageDotJsonFile(dir: string): { dir: string; file: string } | undefined {
+    let filePath = PATH.resolve(dir, "package.json");
+
+    // if package.json does not exist,
+    // try to find it in the parent directory
+    if (!File.exists(filePath)) {
+        const parentDir = PATH.resolve(dir, "..");
+        if (parentDir !== dir && File.isDirectory(parentDir)) {
+            return findPackageDotJsonFile(parentDir);
+        } else {
+            return undefined;
+        }
+    }
+
+    return { dir: dir, file: filePath };
 }

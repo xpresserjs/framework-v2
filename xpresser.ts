@@ -1,4 +1,3 @@
-import PATH from "node:path";
 import { ObjectCollection, ObjectCollectionTyped } from "object-collection";
 import InXpresserError from "./errors/InXpresserError.js";
 import File from "./classes/File.js";
@@ -11,8 +10,7 @@ import type { Config } from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import PathEngine from "./engines/PathEngine.js";
-import { getLocalExternalIp } from "./functions/inbuilt.js";
-import PluginEngine from "./engines/PluginEngine.js";
+import {findPackageDotJsonFile, getLocalExternalIp} from "./functions/inbuilt.js";
 
 export class Xpresser {
     /**
@@ -69,7 +67,7 @@ export class Xpresser {
     /**
      * Has serves a source of truth for the current environment
      */
-     readonly #has = {
+    readonly #has = {
         /**
          * Set to true once modules have been initialized
          */
@@ -426,8 +424,8 @@ export class Xpresser {
         // Run `start` cycle
         await this.runBootCycle("start");
 
-        // Load Plugins
-        await PluginEngine.loadPluginsFromJson(this)
+        // load plugins
+        await this.#loadPlugins();
 
         // Run `boot` cycle
         await this.runBootCycle("boot");
@@ -437,7 +435,6 @@ export class Xpresser {
 
         return this;
     }
-
 
     /**
      * ++++++++++ PRIVATE METHODS ++++++++++
@@ -462,24 +459,32 @@ export class Xpresser {
      * Using key "packageDotJson"
      */
     #loadPackageDotJsonFile() {
-        const currentDir = __dirname(import.meta.url);
-        let packageDotJsonPath = PATH.resolve(currentDir, "../package.json");
 
-        // if package.json does not exist,
-        // try to find it in the parent directory
-        if (!File.exists(packageDotJsonPath)) {
-            packageDotJsonPath = PATH.resolve(currentDir, "../../package.json");
-        }
+
+        const currentDir = __dirname(import.meta.url);
+        // find package dot json file starting from current directory
+        let packageDotJsonPath = findPackageDotJsonFile(currentDir)!;
 
         // Read package.json file
-        const packageDotJson = File.readJson(packageDotJsonPath);
+        const packageDotJson = File.readJson(packageDotJsonPath.file);
 
         // Store package.json in engineData
         this.engineData.setTyped("packageDotJson", {
-            path: packageDotJsonPath,
+            path: packageDotJsonPath.file,
             data: packageDotJson
         });
 
         return this;
+    }
+
+    /**
+     * Load plugins
+     * @private
+     */
+    async #loadPlugins() {
+        // Load Plugins
+        const { default: PluginEngine } = await import("./engines/PluginEngine.js");
+        const pluginEngine = this.engine(PluginEngine);
+        await pluginEngine.loadPluginsFromJson();
     }
 }

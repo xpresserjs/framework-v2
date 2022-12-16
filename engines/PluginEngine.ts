@@ -2,8 +2,8 @@ import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import { Xpresser } from "../xpresser.js";
 import File from "../classes/File.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import {compareVersion} from "../functions/module.js";
-import {Obj} from "object-collection/exports";
+import { compareVersion } from "../functions/module.js";
+import { Obj } from "object-collection/exports";
 
 /**
  * Plugin data type for plugin index files.
@@ -27,7 +27,7 @@ export interface PluginUseDotJson {
     // Xpresser version
     // if not set, it will be ignored.
     // if set, it will check if xpresser version is greater than or equal to this version.
-    xpresser?: string
+    xpresser?: string;
 
     // Plugin Namespace - the namespace of the plugin.
     namespace: string;
@@ -37,7 +37,6 @@ export interface PluginUseDotJson {
     // if not set, it will be ignored.
     // if set, it will be imported and run.
     use_index?: string;
-
 }
 
 export default class PluginEngine extends BaseEngine {
@@ -62,34 +61,35 @@ export default class PluginEngine extends BaseEngine {
     /**
      * Load Plugins from plugin.json
      */
-    static async loadPluginsFromJson($: Xpresser) {
-        const logPlugins = $.config.data.log.plugins;
+    async loadPluginsFromJson() {
+        const logPlugins = this.$.config.data.log.plugins;
         let plugins: Record<string, boolean | { load?: boolean; env?: string | string[] }>;
-        const pluginsJsonPath = $.path.jsonConfigs("plugins.json");
+        const pluginsJsonPath = this.$.path.jsonConfigs("plugins.json");
 
         /**
          * Check if plugin.json exists
          * if yes, load plugins from plugin.json
          */
         if (!File.exists(pluginsJsonPath)) {
-            // import plugins from plugin.json
             return;
         }
 
         try {
             plugins = File.readJson(pluginsJsonPath, true);
         } catch (e) {
-            $.console.logError(`Error loading plugins from ${pluginsJsonPath}`);
+            this.$.console.logError(`Error loading plugins from ${pluginsJsonPath}`);
             return;
         }
 
         if (typeof plugins !== "object") {
-            $.console.logWarning("Plugins not loaded! Typeof plugins is expected to be an object.");
+            this.$.console.logWarning(
+                "Plugins not loaded! Typeof plugins is expected to be an object."
+            );
             return;
         }
 
         const pluginKeys = Object.keys(plugins);
-        const env = $.config.data.env;
+        const env = this.$.config.data.env;
 
         // Caches plugin paths.
         const pluginPaths: Record<string, any> = {};
@@ -148,61 +148,64 @@ export default class PluginEngine extends BaseEngine {
         const listOfPluginNamespaces: string[] = [];
         for (const plugin of Object.keys(loadedPlugins)) {
             // get plugin real path.
-            const $pluginPath: string = (pluginPaths[plugin] = $.path.resolve(plugin));
+            const $pluginPath: string = (pluginPaths[plugin] = this.$.path.resolve(plugin));
 
             try {
-                const $data = pluginData[plugin] = PluginEngine.loadPluginUseData($, $pluginPath);
+                const $data = (pluginData[plugin] = this.#loadPluginUseData($pluginPath));
                 listOfPluginNamespaces.push($data.namespace);
             } catch (e) {
                 // Throw any error from processing and stop xpresser.
-                $.console.logPerLine([
-                    {error: plugin},
-                    {error: e},
-                    {errorAndExit: ""},
-                ], true);
+                this.$.console.logPerLine(
+                    [{ error: plugin }, { error: e }, { errorAndExit: "" }],
+                    true
+                );
             }
         }
 
-        $.modules.ifIsNot("cli", () => {
+        this.$.modules.ifIsNot("cli", () => {
             if (logPlugins) {
-                $.console.logSuccess(`Using plugins: [${listOfPluginNamespaces.join(", ")}]`);
+                this.$.console.logSuccess(`Using plugins: [${listOfPluginNamespaces.join(", ")}]`);
             } else {
                 const pluginsLength = listOfPluginNamespaces.length;
-                $.console.logSuccess(
+                this.$.console.logSuccess(
                     `Using (${pluginsLength}) ${pluginsLength === 1 ? "plugin" : "plugins"}`
                 );
             }
         });
 
-        //
-        // for (const plugin of Object.keys(loadedPlugins)) {
-        //     if (plugin.length) {
-        //         // get plugin real path.
-        //         const $pluginPath: string = pluginPaths[plugin];
-        //
-        //         // Try processing plugin use.json
-        //         try {
-        //             const $data = pluginData[plugin];
-        //             PluginNamespaceToData[$data.namespace] = await PluginEngine.usePlugin(
-        //                 plugin, $pluginPath, $data
-        //             );
-        //
-        //             // Save to engineData
-        //             $.engineData.set("PluginEngine:namespaces", PluginNamespaceToData);
-        //         } catch (e) {
-        //             // Throw any error from processing and stop xpresser.
-        //             $.logPerLine([
-        //                 {error: plugin},
-        //                 {error: e},
-        //                 {errorAndExit: ""},
-        //             ], true);
-        //         }
-        //     }
-        // }
+        /**
+         * PluginNamespaceToData - Holds plugin data using namespaces as keys.
+         */
+        const PluginNamespaceToData: Record<string, any> = {};
+        for (const plugin of Object.keys(loadedPlugins)) {
+            if (plugin.length) {
+                // get plugin real path.
+                const $pluginPath: string = pluginPaths[plugin];
+
+                // Try processing plugin use.json
+                try {
+                    const $data = pluginData[plugin];
+                    PluginNamespaceToData[$data.namespace] = await this.#usePlugin(
+                        plugin,
+                        $pluginPath,
+                        $data
+                    );
+
+                    // Save to engineData
+                    this.$.engineData.set("PluginEngine:namespaces", PluginNamespaceToData);
+                } catch (e) {
+                    // Throw any error from processing and stop xpresser.
+                    this.$.console.logPerLine(
+                        [{ error: plugin }, { error: e }, { errorAndExit: "" }],
+                        true
+                    );
+                }
+            }
+        }
     }
 
-    static loadPluginUseData($: Xpresser, pluginPath: string): any {
-        const PackageDotJson: Record<string, any> = $.engineData.data.packageDotJson.data;
+    #loadPluginUseData(pluginPath: string): any {
+        const PackageDotJson: Record<string, any> = this.$.engineData.data.packageDotJson.data;
         const data = File.readJson<PluginUseDotJson>(pluginPath + "/use.json", true);
         if (!data.namespace) {
             throw new InXpresserError(`Cannot read property 'namespace'`);
@@ -218,17 +221,17 @@ export default class PluginEngine extends BaseEngine {
             const compareWith = version.substring(0, 2);
             version = data.xpresser.substring(2);
 
-
             if (compareWith === ">=" && compareVersion(xpresserVersion, version) === -1) {
-                $.console.logErrorAndExit(
-                    `Plugin: [${data.namespace}] requires xpresser version [${compareWith + version}],\nUpgrade xpresser to continue.`
+                this.$.console.logErrorAndExit(
+                    `Plugin: [${data.namespace}] requires xpresser version [${
+                        compareWith + version
+                    }],\nUpgrade xpresser to continue.`
                 );
-            } else if (
-                compareWith === "<=" &&
-                compareVersion(version, xpresserVersion) === -1
-            ) {
-                $.console.logErrorAndExit(
-                    `Plugin: [${data.namespace}] requires xpresser version [${compareWith + version}],\nDowngrade xpresser to continue.`
+            } else if (compareWith === "<=" && compareVersion(version, xpresserVersion) === -1) {
+                this.$.console.logErrorAndExit(
+                    `Plugin: [${data.namespace}] requires xpresser version [${
+                        compareWith + version
+                    }],\nDowngrade xpresser to continue.`
                 );
             }
         }
@@ -236,18 +239,16 @@ export default class PluginEngine extends BaseEngine {
         return data;
     }
 
-
-    static async usePlugin($: Xpresser, plugin: string, pluginPath: string, data: any) {
+    async #usePlugin(plugin: string, pluginPath: string, data: any) {
         const $data = Obj(data);
         let pluginData: PluginData = {
             namespace: $data.get("namespace"),
             plugin,
             path: pluginPath,
             paths: {}
-        }
+        };
 
-
-        $.modules.ifIs("cli", () => {
+        this.$.modules.ifIs("cli", () => {
             // if ($data.has('publishable')) {
             //     pluginData.publishable = $data.get('publishable')
             // }
@@ -281,8 +282,44 @@ export default class PluginEngine extends BaseEngine {
             //         }
             //     }
             // }
-        })
+        });
+    }
 
+    /**
+     * Check if plugin file exists or throw error.
+     * @param plugin
+     * @param pluginPath
+     * @param file
+     */
+    #pluginPathExistOrExit(plugin: string, pluginPath: string, file: string) {
+        /**
+         * ResolvedRoutePath - get file real path,
+         * Just in any case smartPaths are used.
+         */
+        const ResolvedRoutePath = this.$.path.resolve(file);
+
+        if (file === ResolvedRoutePath) {
+            // Merge plugin base path to file.
+            file = pluginPath + "/" + file;
+        } else {
+            // file is ResolvedPath
+            file = ResolvedRoutePath;
+        }
+
+        // If file or folder does not exist throw error.
+        if (!File.exists(file)) {
+            return this.$.console.logPerLine(
+                [
+                    { error: plugin },
+                    { error: `REQUIRED FILE or DIR MISSING: ${file}` },
+                    { errorAndExit: "" }
+                ],
+                true
+            );
+        }
+
+        // return real path.
+        return file;
     }
 }
 
