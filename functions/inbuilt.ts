@@ -71,14 +71,37 @@ export function touchMyMustache(str: string) {
     return match ? match : [];
 }
 
-
 /**
  * Find package.json in a given path.
  * if no path is given, it will search from the parent directory.
  * @param dir
  */
-export function findPackageDotJsonFile(dir: string): { dir: string; file: string } | undefined {
-    let filePath = PATH.resolve(dir, "package.json");
+export function findPackageDotJsonFile(dir?: string): { dir: string; file: string } | undefined {
+    let filePath: string;
+    // first check "npm_package_json" env variable.
+    // this is set by npm when running scripts.
+    if (process.env.npm_package_json) {
+        filePath = process.env.npm_package_json as string;
+        dir = PATH.dirname(filePath);
+    } else {
+        if (!dir) {
+            dir = process.cwd();
+        }
+
+        filePath = PATH.resolve(dir, "package.json");
+        // if package.json does not exist,
+        // try to find it in the parent directory
+        if (!File.exists(filePath)) {
+            const parentDir = PATH.resolve(dir, "..");
+            if (parentDir !== dir && File.isDirectory(parentDir)) {
+                return findPackageDotJsonFile(parentDir);
+            } else {
+                return undefined;
+            }
+        }
+
+        return { dir: dir, file: filePath };
+    }
 
     // if package.json does not exist,
     // try to find it in the parent directory

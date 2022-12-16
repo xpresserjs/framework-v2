@@ -10,7 +10,7 @@ import type { Config } from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import PathEngine from "./engines/PathEngine.js";
-import {findPackageDotJsonFile, getLocalExternalIp} from "./functions/inbuilt.js";
+import { findPackageDotJsonFile, getLocalExternalIp } from "./functions/inbuilt.js";
 
 export class Xpresser {
     /**
@@ -76,7 +76,12 @@ export class Xpresser {
         /**
          * Set to true once $.start is called.
          */
-        started: false
+        started: false,
+
+        /**
+         * Set to true once plugins have been loaded.
+         */
+        loadedPlugins: false
     };
 
     /**
@@ -437,6 +442,13 @@ export class Xpresser {
     }
 
     /**
+     * Check if plugins has been loaded
+     */
+    hasLoadedPlugins() {
+        return this.#has.loadedPlugins;
+    }
+
+    /**
      * ++++++++++ PRIVATE METHODS ++++++++++
      * +++++++++++++++++++++++++++++++++++++
      * +++++++++++++++++++++++++++++++++++++
@@ -459,8 +471,6 @@ export class Xpresser {
      * Using key "packageDotJson"
      */
     #loadPackageDotJsonFile() {
-
-
         const currentDir = __dirname(import.meta.url);
         // find package dot json file starting from current directory
         let packageDotJsonPath = findPackageDotJsonFile(currentDir)!;
@@ -486,5 +496,8 @@ export class Xpresser {
         const { default: PluginEngine } = await import("./engines/PluginEngine.js");
         const pluginEngine = this.engine(PluginEngine);
         await pluginEngine.loadPluginsFromJson();
+        this.#has.loadedPlugins = true;
+
+        return this;
     }
 }

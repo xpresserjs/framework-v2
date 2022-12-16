@@ -1,12 +1,23 @@
+import { findPackageDotJsonFile } from "./inbuilt.js";
+import File from "../classes/File.js";
+
 /**
  * Import Default Module
  * @param fn
  */
-export async function importDefault<T>(fn: () => Promise<{ default: T }>): Promise<T> {
-    const module = await fn();
+export async function importDefault<T>(fn: string | (() => Promise<{ default: T }>)): Promise<T> {
+    let module: { default: T };
+
+    if (typeof fn === "string") {
+        module = await import(fn);
+    } else {
+        module = await fn();
+    }
+
     if (module.default === undefined) {
         return module as unknown as T;
     }
+
     return module.default;
 }
 
@@ -18,7 +29,6 @@ export async function importDefaultFn<T>(fn: () => Promise<{ default: T }>) {
     return () => importDefault(fn);
 }
 
-
 /**
  * Compare version function
  * -1 = version1 is less than version 2
@@ -26,8 +36,8 @@ export async function importDefaultFn<T>(fn: () => Promise<{ default: T }>) {
  * 0 = Both are the same
  */
 export function compareVersion(version1: string, version2: string) {
-    const v1 = version1.split('.') as (string | number)[];
-    const v2 = version2.split('.') as (string | number)[];
+    const v1 = version1.split(".") as (string | number)[];
+    const v2 = version2.split(".") as (string | number)[];
     const k = Math.min(v1.length, v2.length);
 
     for (let i = 0; i < k; ++i) {
@@ -37,5 +47,24 @@ export function compareVersion(version1: string, version2: string) {
         if (v1[i] < v2[i]) return -1;
     }
 
-    return v1.length == v2.length ? 0 : (v1.length < v2.length ? -1 : 1);
+    return v1.length == v2.length ? 0 : v1.length < v2.length ? -1 : 1;
+}
+
+/**
+ * HasPkg function
+ * @param pkg
+ */
+export function hasPkg(pkg: string) {
+    // using import since require is not supported in esm
+    try {
+        const packageDotJson = findPackageDotJsonFile();
+        if (packageDotJson) {
+            const nodeModulesFolder = packageDotJson.dir + "/node_modules";
+            const pkgPath = nodeModulesFolder + "/" + pkg;
+            const pkgJsonPath = pkgPath + "/package.json";
+            return File.exists(pkgJsonPath);
+        }
+    } catch (e) {
+        return false;
+    }
 }

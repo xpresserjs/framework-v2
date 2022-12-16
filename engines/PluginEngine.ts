@@ -2,8 +2,8 @@ import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import { Xpresser } from "../xpresser.js";
 import File from "../classes/File.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import { compareVersion } from "../functions/module.js";
-import { Obj } from "object-collection/exports";
+import { compareVersion, importDefault, hasPkg } from "../functions/module.js";
+import { ObjTyped } from "object-collection/exports";
 
 /**
  * Plugin data type for plugin index files.
@@ -19,7 +19,7 @@ export interface PluginData {
 }
 
 export interface XpresserPlugin {
-    dependsOn?: () => string[];
+    dependsOn?: (plugin: PluginData, $: Xpresser) => string[] | Promise<string[]>;
     run?: (plugin: PluginData, $: Xpresser) => void | Promise<void>;
 }
 
@@ -41,7 +41,8 @@ export interface PluginUseDotJson {
 
 export default class PluginEngine extends BaseEngine {
     static config: BaseEngineConfig = {
-        name: "Xpresser/PluginEngine"
+        name: "Xpresser/PluginEngine",
+        uniqueMemory: true
     };
 
     /**
@@ -62,6 +63,10 @@ export default class PluginEngine extends BaseEngine {
      * Load Plugins from plugin.json
      */
     async loadPluginsFromJson() {
+        if (this.$.hasLoadedPlugins()) {
+            throw new InXpresserError(`Plugins already loaded.`);
+        }
+
         const logPlugins = this.$.config.data.log.plugins;
         let plugins: Record<string, boolean | { load?: boolean; env?: string | string[] }>;
         const pluginsJsonPath = this.$.path.jsonConfigs("plugins.json");
@@ -95,7 +100,7 @@ export default class PluginEngine extends BaseEngine {
         const pluginPaths: Record<string, any> = {};
 
         // Caches plugin Data
-        const pluginData: Record<string, any> = {};
+        const pluginData: Record<string, PluginUseDotJson> = {};
 
         /**
          * Loop through and process plugins.
@@ -115,7 +120,7 @@ export default class PluginEngine extends BaseEngine {
 
             // if plugin has an object value,
             if (typeof pluginUseDotJsonValue === "object") {
-                // if it has a load property and it is false, skip it.
+                // if it has a load property, and it is false, skip it.
                 if (
                     pluginUseDotJsonValue.hasOwnProperty("load") &&
                     pluginUseDotJsonValue.load === false
@@ -176,7 +181,7 @@ export default class PluginEngine extends BaseEngine {
         /**
          * PluginNamespaceToData - Holds plugin data using namespaces as keys.
          */
-        const PluginNamespaceToData: Record<string, any> = {};
+        const PluginNamespaceToData: Record<string, PluginData> = {};
         for (const plugin of Object.keys(loadedPlugins)) {
             if (plugin.length) {
                 // get plugin real path.
@@ -185,14 +190,14 @@ export default class PluginEngine extends BaseEngine {
                 // Try processing plugin use.json
                 try {
                     const $data = pluginData[plugin];
-                    PluginNamespaceToData[$data.namespace] = await this.#usePlugin(
+                    PluginNamespaceToData[$data.namespace] = (await this.#usePlugin(
                         plugin,
                         $pluginPath,
                         $data
-                    );
+                    ))!;
 
                     // Save to engineData
-                    this.$.engineData.set("PluginEngine:namespaces", PluginNamespaceToData);
+                    this.memory.set("namespaces", PluginNamespaceToData);
                 } catch (e) {
                     // Throw any error from processing and stop xpresser.
                     this.$.console.logPerLine(
@@ -239,50 +244,85 @@ export default class PluginEngine extends BaseEngine {
         return data;
     }
 
-    async #usePlugin(plugin: string, pluginPath: string, data: any) {
-        const $data = Obj(data);
+    async #usePlugin(plugin: string, pluginPath: string, useDotJsonValue: PluginUseDotJson) {
+        const use = ObjTyped(useDotJsonValue);
+
         let pluginData: PluginData = {
-            namespace: $data.get("namespace"),
+            namespace: use.data.namespace,
             plugin,
             path: pluginPath,
             paths: {}
         };
 
-        this.$.modules.ifIs("cli", () => {
-            // if ($data.has('publishable')) {
-            //     pluginData.publishable = $data.get('publishable')
-            // }
-            //
-            // if ($data.has('importable')) {
-            //     pluginData.publishable = $data.get('importable')
-            // }
-            //
-            // // check if plugin use.json has paths.Commands only if console
-            // if ($data.has("paths.commands")) {
-            //     let commandPath: any = $data.get("paths.commands");
-            //     commandPath = pluginPathExistOrExit(plugin, path, commandPath);
-            //     pluginData.paths.commands = commandPath;
-            //
-            //     const cliCommandsPath = path + "/cli-commands.json";
-            //
-            //     if ($.file.isFile(cliCommandsPath)) {
-            //         pluginData.commands = {};
-            //
-            //         const cliCommands = require(cliCommandsPath);
-            //         if (cliCommands && Array.isArray(cliCommands)) {
-            //             for (const command of cliCommands) {
-            //                 let commandAction = command['action'];
-            //
-            //                 if (!commandAction) {
-            //                     commandAction = command.command.split(" ")[0];
-            //                 }
-            //
-            //                 pluginData.commands[commandAction] = pluginPathExistOrExit(plugin, commandPath, command.file);
-            //             }
-            //         }
-            //     }
-            // }
-        });
+        // check if plugin defined an index file.
+        const indexFile = use.data.use_index;
+        if (indexFile) {
+            const indexFilePath = this.#pluginPathExistOrExit(plugin, pluginPath, indexFile);
+
+            if (indexFilePath) {
+                // import index file.
+                const indexFileData = await importDefault<XpresserPlugin | undefined>(
+                    indexFilePath
+                );
+
+                if (indexFileData) {
+                    /**
+                     * Run plugin indexFile.
+                     */
+                    const { run, dependsOn } = indexFileData;
+
+                    // check for packages plugin dependsOn
+                    if (dependsOn && typeof dependsOn === "function") {
+                        let pluginDependsOn: string[] | undefined = await dependsOn(
+                            pluginData,
+                            this.$
+                        );
+
+                        // Validate function return type.
+                        if (!pluginDependsOn || !Array.isArray(pluginDependsOn))
+                            return this.$.console.logErrorAndExit(
+                                `dependsOn() function for plugin {${pluginData.namespace}} must return an array of packages.`
+                            );
+
+                        // Log warning for missing required packages.
+                        if (pluginDependsOn.length) {
+                            let missingPkgs = 0;
+
+                            // Loop through and check packages.
+                            pluginDependsOn.forEach((pkg) => {
+                                // Show warning for every missing package.
+                                if (!hasPkg(pkg)) {
+                                    // Intro log.
+                                    if (missingPkgs === 0)
+                                        this.$.console.logError(
+                                            `Plugin: (${pluginData.namespace}) requires the following dependencies:`
+                                        );
+
+                                    console.log(`- ${pkg}`);
+
+                                    missingPkgs++;
+                                }
+                            });
+
+                            // Stop if missing package
+                            if (missingPkgs)
+                                return this.$.console.logErrorAndExit(
+                                    `Install required ${
+                                        missingPkgs > 1 ? "dependencies" : "dependency"
+                                    } and restart server.`
+                                );
+                        }
+                    }
+
+                    /**
+                     * Call Run function.
+                     */
+                    if (run && typeof run === "function") await run(pluginData, this.$);
+                }
+            }
+        }
+
+        return pluginData;
     }
 
     /**
@@ -296,7 +336,7 @@ export default class PluginEngine extends BaseEngine {
          * ResolvedRoutePath - get file real path,
          * Just in any case smartPaths are used.
          */
-        const ResolvedRoutePath = this.$.path.resolve(file);
+        const ResolvedRoutePath = this.$.path.resolve([pluginPath, file]);
 
         if (file === ResolvedRoutePath) {
             // Merge plugin base path to file.
