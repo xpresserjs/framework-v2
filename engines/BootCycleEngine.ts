@@ -49,15 +49,15 @@ export default class BootCycleEngine {
         // and add them to the `$.on` object
         for (const cycle of $.getBootCycles()) {
             if (!$.on[cycle]) {
-                $.on[cycle] = (todo) => {
+                $.on[cycle] = NamedFunc(`cycle:"${cycle}"`, (todo) => {
                     $.addToBootCycle(cycle, todo);
                     // This is returned to allow chaining
                     return $.on;
-                };
+                });
 
                 // Add $.on.$cycle$Next
                 const cycle$ = `${cycle}$` as BootCycle.Keys;
-                $.on[cycle$] = (todo) => {
+                $.on[cycle$] = NamedFunc(cycle$, (todo) => {
                     // Make cycle function with next called
                     const funcName = todo.name || "anonymous";
                     const func = BootCycleFunction(funcName, async (next, xpresser) => {
@@ -81,7 +81,7 @@ export default class BootCycleEngine {
                     $.addToBootCycle(cycle, func);
 
                     return $.on;
-                };
+                });
             }
         }
     }

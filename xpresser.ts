@@ -435,7 +435,7 @@ export class Xpresser {
         // Run `boot` cycle
         await this.runBootCycle("boot");
 
-        // Run`started` cycle
+        // Run `started` cycle
         await this.runBootCycle("started");
 
         return this;
