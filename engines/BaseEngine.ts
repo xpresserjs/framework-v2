@@ -1,6 +1,7 @@
 import type { ObjectCollectionTyped } from "object-collection";
 import InXpresserError from "../errors/InXpresserError.js";
 import type { Xpresser } from "../xpresser.js";
+import {OC_TObject} from "object-collection/types";
 
 export interface BaseEngineConfig {
     name: string;
@@ -9,7 +10,7 @@ export interface BaseEngineConfig {
 /**
  * This class provides the base structure for all classes that requires Xpresser
  */
-export default class BaseEngine<MemoryData = Record<string, any>> {
+export default class BaseEngine<MemoryData extends OC_TObject = Record<string, any>> {
     /**
      * Engine Settings
      */
@@ -66,7 +67,7 @@ export default class BaseEngine<MemoryData = Record<string, any>> {
      * Get Engine Data
      * @param $
      */
-    static $engineData<MemoryData>($: Xpresser) {
+    static $engineData<MemoryData extends OC_TObject>($: Xpresser) {
         return $.engineData
             .path(`engines`)
             .path(this.config.name) as ObjectCollectionTyped<MemoryData>;
