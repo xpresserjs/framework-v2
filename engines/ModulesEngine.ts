@@ -143,7 +143,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      */
     public async initializeActiveModule() {
         const activeModule = this.getActive() as Modules.Keywords;
-        if (!activeModule) return this.$.console.logError(`No 'default' module found!`);
+        if (!activeModule) return this.$.console.logErrorAndExit(`No 'default' module found!`);
 
         // Assert if active module is not registered
         try {
