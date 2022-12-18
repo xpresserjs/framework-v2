@@ -294,4 +294,49 @@ export default class ConsoleEngine extends BaseEngine {
     ): void {
         return this.debugIf(key, fn as () => void);
     }
+
+    /**
+     * emptyLine - Add empty line to console
+     * @param lines
+     */
+    emptyLine(lines: number = 1) {
+        for (let i = 0; i < lines; i++) {
+            console.log();
+        }
+    }
+
+    /**
+     * spacing - emptyLine alias
+     * @param lines
+     */
+    spacing(lines: number = 1) {
+        return this.emptyLine(lines);
+    }
+
+    logAsciiArt() {
+        //  "xpresser" ascii art
+        const asciiArt = `
+__   __                                         
+\\ \\ / /                                         
+ \\ V /  _ __   _ __   ___  ___  ___   ___  _ __ 
+ /   \\ | '_ \\ | '__| / _ \\/ __|/ __| / _ \\| '__|
+/ /^\\ \\| |_) || |   |  __/\\__ \\\\__ \\|  __/| |   
+\\/   \\/| .__/ |_|    \\___||___/|___/ \\___||_|   
+       | |                                      
+       |_|                                                                                                         
+        `.trim();
+
+        // find the length of the longest line
+        const longestLine = asciiArt
+            .split("\n")
+            .reduce((a, b) => (a.length > b.length ? a : b)).length;
+
+        const plusDecor = chalk.gray("+".repeat(longestLine + 10));
+
+        console.log(plusDecor);
+        console.log(chalk.white(asciiArt));
+        console.log(plusDecor);
+
+        this.spacing();
+    }
 }

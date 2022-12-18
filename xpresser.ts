@@ -4,7 +4,7 @@ import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
 import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
-import { DefaultConfig } from "./config.js";
+import { DefaultConfig, XpresserConfig } from "./config.js";
 import ModulesEngine from "./engines/ModulesEngine.js";
 import type { Config } from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
@@ -27,7 +27,7 @@ export class Xpresser {
     /**
      * Config Collection
      */
-    public readonly config: ObjectCollectionTyped<Config.Main>;
+    public readonly config: XpresserConfig<Config.Main>;
 
     /**
      * Engine Memory Store
@@ -97,7 +97,9 @@ export class Xpresser {
     constructor(config: Config.InitConfig, options?: Partial<Config.Options>) {
         try {
             // Initialize Config as object-collection type.
-            this.config = ObjectCollectionTyped.useCloned(DefaultConfig).merge(config);
+            this.config = XpresserConfig.useCloned(DefaultConfig()).merge(
+                config
+            ) as XpresserConfig<Config.Main>;
 
             // setup date
             this.#setupDate();
@@ -110,6 +112,12 @@ export class Xpresser {
 
             // Initialize ConsoleEngine
             this.console = new ConsoleEngine(this);
+
+            this.config.data.log;
+
+            if (this.config.isTrue("log.asciiArt")) {
+                this.console.logAsciiArt();
+            }
 
             // Initialize PathEngine
             this.path = new PathEngine(this).resolveConfigPaths();

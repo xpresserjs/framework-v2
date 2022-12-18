@@ -1,7 +1,7 @@
 import InXpresserError from "../errors/InXpresserError.js";
 import type { Xpresser } from "../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
-import {OC_TObject} from "object-collection/types";
+import { OC_TObject } from "object-collection/types";
 
 /**
  * ModulesEngine Related Types
@@ -12,7 +12,20 @@ export declare module Modules {
 }
 
 export interface BaseModuleConfig {
+    /**
+     * Module Name.
+     */
     name: string;
+
+    /**
+     * Module Launch keyword.
+     */
+    keyword: string;
+
+    /**
+     * Module Description. (Optional)
+     */
+    description?: string;
 }
 
 export default class BaseModule<MemoryData extends OC_TObject = Record<string, any>> {
@@ -30,11 +43,6 @@ export default class BaseModule<MemoryData extends OC_TObject = Record<string, a
      * Holds the current initialized state of this module.
      */
     protected initialized: boolean = false;
-
-    /**
-     * ModulesEngine launch keyword
-     */
-    static readonly keyword: string = "";
 
     /**
      * Get xpresser console instance.

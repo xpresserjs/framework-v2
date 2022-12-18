@@ -148,7 +148,11 @@ export declare module Config {
     }
 
     export interface Log {
-        plugins: boolean
+        plugins: boolean;
+
+        // Log Ascii Art
+        // default: true
+        asciiArt: boolean;
     }
 
     /**
@@ -171,11 +175,10 @@ export declare module Config {
          */
         paths: Partial<Paths>;
 
-
         /**
          * Log Configuration
          */
-        log: Partial<Log>
+        log: Partial<Log>;
 
         /**
          * Debug configurations

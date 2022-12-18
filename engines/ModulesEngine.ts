@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseModule, { type Modules } from "../modules/BaseModule.js";
@@ -79,19 +80,19 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Load the current application module.
      */
     async register<M extends typeof BaseModule<any>>(Module: M) {
-        const name = Module.keyword;
+        const name = Module.config.keyword;
 
         // throw error if name is undefined
         if (!name) {
             throw new InXpresserError(
-                `Module: "${Module.name}" does not have a static keyword property!`
+                `Module: "${Module.name}" does not have a keyword property in config!`
             );
         }
 
         // register module
-        this.registered[Module.keyword] = Module;
+        this.registered[Module.config.keyword] = Module;
 
-        this.has(Module.keyword as Modules.Keywords, true);
+        this.has(Module.config.keyword as Modules.Keywords, true);
 
         // register boot cycles
         const customCycles = Module.customBootCycles();
@@ -143,7 +144,9 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
      */
     public async initializeActiveModule() {
         const activeModule = this.getActive() as Modules.Keywords;
-        if (!activeModule) return this.$.console.logErrorAndExit(`No 'default' module found!`);
+        if (!activeModule) {
+            return this.#noActiveModuleError();
+        }
 
         // Assert if active module is not registered
         try {
@@ -163,6 +166,39 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
 
         // Set as active instance
         this.activeInstance = module;
+    }
+
+    /**
+     * No Active Module Error Log
+     * @private
+     */
+    #noActiveModuleError() {
+        this.$.console.logError(
+            `No 'default' module found, Set default module or pass a module to run.`
+        );
+
+        const registeredKeys = Object.keys(this.registered);
+        if (registeredKeys.length) {
+            // show help
+            this.$.console.spacing();
+            this.$.console.log(`Below are the available modules:`);
+            // log all registered modules (numbered)
+            for (const [index, keyword] of registeredKeys.entries()) {
+                // get module
+                const m = this.registered[keyword];
+                let msg = `${index + 1}. ${chalk.yellow(keyword)}`;
+
+                if (m.config.description) {
+                    msg += ` => ${chalk.whiteBright(m.config.description)}`;
+                }
+
+                this.$.console.log(msg);
+            }
+
+            this.$.console.spacing();
+        }
+
+        return this.$.exit();
     }
 
     /**

@@ -67,13 +67,10 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
      * Module Config.
      */
     static config: BaseModuleConfig = {
-        name: "Xpresser/ConsoleModule"
+        name: "Xpresser/ConsoleModule",
+        keyword: "cli",
+        description: "Xpresser command-line module"
     };
-
-    /**
-     * Module Launch keyword.
-     */
-    static keyword: string = "cli";
 
     /**
      * Commands Map
