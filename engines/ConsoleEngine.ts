@@ -335,8 +335,25 @@ __   __
 
         console.log(plusDecor);
         console.log(chalk.white(asciiArt));
-        console.log(plusDecor);
-
+        this.#logVersion(plusDecor.length);
         this.spacing();
+    }
+
+    #logVersion(totalLength = 50) {
+        let plusDecor = "+".repeat(totalLength);
+
+        // Get Xpresser Version from package.json
+        let { version } = this.$.engineData.data.packageDotJson.data as any;
+        version = chalk.yellow(` v${version} `);
+
+        // inject version into plusDecor middle
+        const middle = Math.floor(totalLength / 2);
+        const versionLength = version.length;
+        const versionStart = middle - Math.floor(versionLength / 2);
+        const versionEnd = versionStart + versionLength;
+
+        plusDecor = plusDecor.slice(0, versionStart) + version + plusDecor.slice(versionEnd);
+
+        console.log(chalk.gray(plusDecor));
     }
 }
