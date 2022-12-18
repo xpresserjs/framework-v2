@@ -313,7 +313,11 @@ export default class ConsoleEngine extends BaseEngine {
         return this.emptyLine(lines);
     }
 
-    logAsciiArt() {
+    logAsciiArt(force = false) {
+        if (!force && this.$.config.isFalse("log.asciiArt")) {
+            return;
+        }
+
         //  "xpresser" ascii art
         const asciiArt = `
 __   __                                         

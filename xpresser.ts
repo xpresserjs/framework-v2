@@ -115,10 +115,6 @@ export class Xpresser {
 
             this.config.data.log;
 
-            if (this.config.isTrue("log.asciiArt")) {
-                this.console.logAsciiArt();
-            }
-
             // Initialize PathEngine
             this.path = new PathEngine(this).resolveConfigPaths();
 
@@ -433,6 +429,9 @@ export class Xpresser {
         this.#has.registeredModules = true;
 
         await this.runBootCycle("beforeStart");
+
+        // log ascii art
+        this.console.logAsciiArt();
 
         // Run `start` cycle
         await this.runBootCycle("start");
