@@ -26,7 +26,7 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Base Engine Config
      */
-    static config: BaseEngineConfig = {
+    static readonly config: BaseEngineConfig = {
         name: "Xpresser/ModulesEngine"
     };
 

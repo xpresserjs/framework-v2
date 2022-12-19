@@ -32,7 +32,7 @@ export default class BaseModule<MemoryData extends OC_TObject = Record<string, a
     /**
      * Module Settings
      */
-    static config: BaseModuleConfig;
+    static readonly config: BaseModuleConfig;
 
     /**
      * Holds the module memory data.
