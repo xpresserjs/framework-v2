@@ -315,7 +315,7 @@ export class Xpresser {
 
                     // log completed if debug config is enabled
                     this.console.debugIf(
-                        "bootCycle.bootCycleFunctions.completed",
+                        "bootCycleFunction.completed",
                         `<----- [${lastIndexFnName}] completed.`
                     );
 
@@ -336,7 +336,7 @@ export class Xpresser {
                         // log started if debug config is enabled
                         if (currentCycleFn.name !== $onCycleComplete.name) {
                             this.console.debugIf(
-                                "bootCycle.bootCycleFunctions.started",
+                                "bootCycleFunction.started",
                                 `-----> [${currentCycleFn.name}] started.`
                             );
                         }
@@ -356,7 +356,7 @@ export class Xpresser {
                 try {
                     // log started if debug config is enabled
                     this.console.debugIf(
-                        "bootCycle.bootCycleFunctions.started",
+                        "bootCycleFunction.started",
                         `-----> [${currentCycleFnName}] started.`
                     );
 

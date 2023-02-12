@@ -79,7 +79,17 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Load the current application module.
      */
-    async register<M extends typeof BaseModule<any>>(Module: M) {
+    async register<M extends typeof BaseModule<any>>(
+        Module: M,
+        config: {
+            /**
+             * Add Boot Cycles to add to module.
+             * This enables you to add extra boot cycles to a module.
+             * These cycles will be concatenated to the module's custom boot cycles.
+             */
+            addBootCycles?: BootCycle.Keys[];
+        } = {}
+    ) {
         const name = Module.config.keyword;
 
         // throw error if name is undefined
@@ -95,9 +105,12 @@ export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
         this.has(Module.config.keyword as Modules.Keywords, true);
 
         // register boot cycles
-        const customCycles = Module.customBootCycles();
+        let customCycles = [...Module.customBootCycles(), ...(config.addBootCycles || [])];
         if (customCycles.length) {
-            // if true, add custom cycles to boot cycles
+            // make sure bootCycles are unique
+            customCycles = [...new Set(customCycles)];
+
+            // Add custom cycles to boot cycles
             this.$.addBootCycle(customCycles as BootCycle.Keys[]);
         }
     }

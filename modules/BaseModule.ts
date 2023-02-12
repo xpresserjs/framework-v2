@@ -125,4 +125,13 @@ export default class BaseModule<MemoryData extends OC_TObject = Record<string, a
     static customBootCycles(): string[] {
         return [];
     }
+
+    /**
+     * Prepends module name to string.
+     * @param str - String to prepend
+     * @param separator - Separator
+     */
+    static prependName(str: string, separator = "/") {
+        return `${this.config.name}${separator}${str}`;
+    }
 }

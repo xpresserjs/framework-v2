@@ -41,12 +41,12 @@ export function DefaultConfig(): Config.Main {
             bootCycle: {
                 started: false,
                 completed: false,
-                irrelevantNextError: true,
+                irrelevantNextError: true
+            },
 
-                bootCycleFunctions: {
-                    started: false,
-                    completed: false
-                }
+            bootCycleFunction: {
+                started: false,
+                completed: false
             },
 
             requests: {

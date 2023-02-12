@@ -123,7 +123,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         }
 
         // set default config
-        this.setDefaultConfig();
+        this.#setDefaultConfig();
         const { defaultCommand } = this.$.config.data.cli!;
 
         // return error if no command is defined.
@@ -146,8 +146,8 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
 
         // Run on started boot cycle
         this.$.on.started(
-            BootCycleFunction("___CONSOLE_MODULE___", async (next) => {
-                await this.boot();
+            BootCycleFunction(ConsoleModule.prependName("Started"), async (next) => {
+                await this.#boot();
                 return next();
             })
         );
@@ -156,7 +156,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         this.initialized = true;
     }
 
-    setDefaultConfig() {
+    #setDefaultConfig() {
         const currentConfig = this.$.config.get("cli", {});
         const defaultConfig: ConsoleModuleConfig = {
             defaultCommand: "ls"
@@ -169,7 +169,7 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
     /**
      * Boot Module
      */
-    async boot() {
+    async #boot() {
         // add default commands
         await this.#addDefaultCommands();
 

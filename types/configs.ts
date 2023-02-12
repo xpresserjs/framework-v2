@@ -24,21 +24,21 @@ export declare module Config {
              * Hide irrelevant next error
              */
             irrelevantNextError: boolean;
+        }>;
+
+        /**
+         * Boot Cycle Function Logs
+         */
+        bootCycleFunction: Partial<{
+            /**
+             * Log when boot cycle function starts
+             */
+            started: boolean;
 
             /**
-             * Boot Cycle Function Logs
+             * Log when boot cycle function completes
              */
-            bootCycleFunctions: Partial<{
-                /**
-                 * Log when boot cycle function starts
-                 */
-                started: boolean;
-
-                /**
-                 * Log when boot cycle function completes
-                 */
-                completed: boolean;
-            }>;
+            completed: boolean;
         }>;
 
         /**
