@@ -49,7 +49,7 @@ export default class BootCycleEngine {
         // and add them to the `$.on` object
         for (const cycle of $.getBootCycles()) {
             if (!$.on[cycle]) {
-                $.on[cycle] = NamedFunc(`cycle:"${cycle}"`, (todo) => {
+                $.on[cycle] = NamedFunc(cycle, (todo) => {
                     $.addToBootCycle(cycle, todo);
                     // This is returned to allow chaining
                     return $.on;
