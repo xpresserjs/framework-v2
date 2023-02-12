@@ -46,16 +46,16 @@ export default class PluginEngine extends BaseEngine {
     };
 
     /**
-     * Check if
+     * Check if plugin is valid.
      * @param plugin
      */
     static validatePluginObject(plugin: XpresserPlugin) {
         if (plugin.dependsOn && typeof plugin.dependsOn !== "function") {
-            throw new Error("Plugin must have a dependsOn function");
+            throw new Error("Plugin `dependsOn` property must be a function");
         }
 
         if (plugin.run && typeof plugin.run !== "function") {
-            throw new Error("Plugin must have a run function");
+            throw new Error("Plugin `run` property must be a function");
         }
     }
 
@@ -128,7 +128,7 @@ export default class PluginEngine extends BaseEngine {
                     continue;
                 }
 
-                // if it has an env property and it is not equal to the current env, skip it.
+                // if it has an env property, and it is not equal to the current env, skip it.
                 if (pluginUseDotJsonValue.hasOwnProperty("env")) {
                     if (
                         typeof pluginUseDotJsonValue.env === "string" &&

@@ -55,7 +55,7 @@ export default class BootCycleEngine {
                     return $.on;
                 });
 
-                // Add $.on.$cycle$Next
+                // Add $.on.cycle$ function
                 const cycle$ = `${cycle}$` as BootCycle.Keys;
                 $.on[cycle$] = NamedFunc(cycle$, (todo) => {
                     // Make cycle function with next called
