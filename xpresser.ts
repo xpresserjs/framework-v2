@@ -5,7 +5,7 @@ import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
 import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
 import { DefaultConfig, XpresserConfig } from "./config.js";
-import ModulesEngine from "./engines/ModulesEngine.js";
+import ModuleEngine from "./engines/ModuleEngine.js";
 import type { Config } from "./types/configs.js";
 import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
@@ -87,7 +87,7 @@ export class Xpresser {
     /**
      * Modules Engine
      */
-    readonly modules: ModulesEngine;
+    readonly modules: ModuleEngine;
 
     /**
      * Initialize new xpresser instance
@@ -139,7 +139,7 @@ export class Xpresser {
             BootCycleEngine.initialize(this);
 
             // Initialize Modules
-            this.modules = new ModulesEngine(this);
+            this.modules = new ModuleEngine(this);
 
             // Set LanIp
             this.engineData.set("lanIp", getLocalExternalIp());

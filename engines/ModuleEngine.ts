@@ -14,20 +14,20 @@ export interface ModuleEngineMemoryData {
 declare module "../types/engine-data.js" {
     module EngineData {
         interface EnginesMemory {
-            ModulesEngine: ModuleEngineMemoryData;
+            ModuleEngine: ModuleEngineMemoryData;
         }
     }
 }
 
 /**
- * Default ModulesEngine Class
+ * Default ModuleEngine Class
  */
-export default class ModulesEngine extends BaseEngine<ModuleEngineMemoryData> {
+export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Base Engine Config
      */
     static readonly config: BaseEngineConfig = {
-        name: "Xpresser/ModulesEngine"
+        name: "Xpresser/ModuleEngine"
     };
 
     /**

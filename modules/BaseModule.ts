@@ -4,7 +4,7 @@ import type { ObjectCollectionTyped } from "object-collection";
 import { OC_TObject } from "object-collection/types";
 
 /**
- * ModulesEngine Related Types
+ * ModuleEngine Related Types
  */
 export declare module Modules {
     export enum Available {}
