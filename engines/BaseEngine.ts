@@ -37,7 +37,7 @@ export default class BaseEngine<MemoryData extends OC_TObject = Record<string, a
                 `Engine with name: "${this.$static().name}" is not configured yet!.`
             );
 
-        // if no name throw error
+        // if no name, throw error
         if (!config.name)
             throw new InXpresserError(`Engine with name: "${config.name}" has no name configured.`);
 
