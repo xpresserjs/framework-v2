@@ -274,7 +274,7 @@ export default class File {
      */
     static readJson<T extends object>(path: string, fileExists = false) {
         /**
-         * Check if path exists
+         * Check if a path exists
          */
         if (!fileExists && !fs.existsSync(path)) {
             throw Error(`File.readJson: Path (${path}) does not exists.`);
