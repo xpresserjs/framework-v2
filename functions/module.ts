@@ -31,11 +31,14 @@ export async function importDefaultFn<T>(fn: () => Promise<{ default: T }>) {
 
 /**
  * Compare version function
- * -1 = version1 is less than version 2
- * 1 = version1 is greater than version 2
+ *
+ * -1 = version 1 is less than version 2
+ *
+ * 1 = version 1 is greater than version 2
+ *
  * 0 = Both are the same
  */
-export function compareVersion(version1: string, version2: string) {
+export function compareVersion(version1: string, version2: string): 0 | 1 | -1 {
     const v1 = version1.split(".") as (string | number)[];
     const v2 = version2.split(".") as (string | number)[];
     const k = Math.min(v1.length, v2.length);
@@ -64,6 +67,8 @@ export function hasPkg(pkg: string) {
             const pkgJsonPath = pkgPath + "/package.json";
             return File.exists(pkgJsonPath);
         }
+
+        return false;
     } catch (e) {
         return false;
     }

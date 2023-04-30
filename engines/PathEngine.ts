@@ -1,4 +1,4 @@
-import PATH from "node:path";
+import Path from "node:path";
 import InXpresserError from "../errors/InXpresserError.js";
 import { removeLeadingSlash } from "../functions/path.js";
 import type { Config } from "../types/configs.js";
@@ -67,7 +67,6 @@ class PathEngine extends BaseEngine {
         return this.smartPath(`storage://framework/${removeLeadingSlash(str)}`);
     }
 
-
     /**
      * Get path to jsonConfigs folder
      * @param str - String to add to jsonConfig path
@@ -76,7 +75,6 @@ class PathEngine extends BaseEngine {
     jsonConfigs(str: string = "") {
         return this.smartPath(`jsonConfigs://${removeLeadingSlash(str)}`);
     }
-
 
     /**
      * Resolve a path, or smart path.
@@ -101,7 +99,7 @@ class PathEngine extends BaseEngine {
         }
 
         // Get resolved path
-        let resolved = PATH.resolve(...paths);
+        let resolved = Path.resolve(...paths);
 
         // if exclude is set, remove it from resolved
         if (options && options.exclude) {
@@ -143,7 +141,7 @@ class PathEngine extends BaseEngine {
             pathConfig = this.smartPath(pathConfig as SmartPaths.Path);
         }
 
-        return PATH.resolve(pathConfig, ...segments);
+        return Path.resolve(pathConfig, ...segments);
     }
 
     /**

@@ -1,5 +1,7 @@
+// noinspection JSUnusedGlobalSymbols
+
 import fs from "node:fs";
-import PATH from "node:path";
+import Path from "node:path";
 import fse from "fs-extra";
 
 type encodingType =
@@ -99,6 +101,7 @@ export default class File {
     }
 
     /**
+     * Read File
      * @param path
      * @param options
      */
@@ -147,14 +150,33 @@ export default class File {
 
     /**
      * Check if a path or an array of paths exists.
+     * @param path - Path to find.
+     */
+    static exists(path: string): boolean;
+
+    /**
+     * Check if multiple paths exist.
+     * @param path - Paths to find.
+     */
+    static exists(path: string[]): boolean;
+
+    /**
+     * Check if multiple paths exist and return the list of found files.
+     * @param path - Paths to find.
+     * @param returnList - Option to return a list of found files.
+     */
+    static exists(path: string[], returnList: true): string[];
+
+    /**
+     * Check if a path or an array of paths exists.
      *
-     * if $returnList is true and path is an array,
+     * if returnList is true and a path is an array,
      * the list of files found will be returned.
      * @param {string|string[]} path - Path or Paths to find.
-     * @param {boolean} $returnList - Return list of found files in array.
+     * @param {boolean} returnList - Return list of found files in the array.
      */
-    static exists(path: string | string[], $returnList = false): boolean | string[] {
-        // If Array, loop and check if each files exists
+    static exists(path: string | string[], returnList = false): boolean | string[] {
+        // If Array, loop and check if each file exists
         if (Array.isArray(path)) {
             const files = path as string[];
             // Holds files found
@@ -163,17 +185,18 @@ export default class File {
             for (const file of files) {
                 const fileExists = this.exists(file);
 
-                // If we are not returning lists then we should stop once a path is not found.
-                if (!$returnList && !fileExists) {
+                // If we are not returning lists, then we should stop once a path is not found.
+                if (!returnList && !fileExists) {
                     return false;
                 }
 
+                // If we are returning lists, then we should add the file to the list if it exists.
                 if (fileExists) {
                     filesFound.push(file);
                 }
             }
 
-            return $returnList ? filesFound : true;
+            return returnList ? filesFound : true;
         } else {
             // to check data passed.
             try {
@@ -303,6 +326,7 @@ export default class File {
             space?: number;
         } = {}
     ) {
+        // Set default options
         options = Object.assign(
             {
                 checkIfFileExists: false,
@@ -332,7 +356,7 @@ export default class File {
      */
     static makeDirIfNotExist(path: string, $isFile = false) {
         if ($isFile) {
-            path = PATH.dirname(path);
+            path = Path.dirname(path);
         }
 
         if (!fs.existsSync(path)) {

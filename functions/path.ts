@@ -1,5 +1,5 @@
 import Url from "node:url";
-import PATH from "node:path";
+import Path from "node:path";
 
 /**
  * Provide cjs __dirname support.
@@ -11,9 +11,9 @@ export function __dirname(url: string, add?: string | string[]) {
 
     if (add) {
         if (Array.isArray(add)) {
-            return PATH.join(path, ...add);
+            return Path.join(path, ...add);
         } else {
-            return PATH.join(path, add);
+            return Path.join(path, add);
         }
     }
 

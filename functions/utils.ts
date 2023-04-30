@@ -15,7 +15,7 @@ export function NamedFunc<FN extends Function>(name: string, fn: FN): FN;
  */
 export function NamedFunc<FN extends Function>(fn: FN, name: string): FN;
 export function NamedFunc<FN extends Function>(fn: FN | string, name?: string | FN) {
-    // if first argument is a string,
+    // if the first argument is a string,
     // we assume it is the name of the function
     if (typeof fn === "string") {
         const $name = fn;
@@ -23,7 +23,7 @@ export function NamedFunc<FN extends Function>(fn: FN | string, name?: string | 
         name = $name;
     }
 
-    // Provide a name for the function if name is defined
+    // Provide a name for the function if name is defined,
     // This is important because the name will be used
     // to log errors
     if (name) Object.defineProperty(fn, "name", { value: name });

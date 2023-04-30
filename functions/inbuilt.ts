@@ -1,6 +1,6 @@
 import os from "node:os";
 import fs from "node:fs";
-import PATH from "node:path";
+import Path from "node:path";
 import File from "../classes/File.js";
 
 /**
@@ -80,21 +80,21 @@ export function findPackageDotJsonFile(dir?: string): { dir: string; file: strin
     let filePath: string;
 
     if (dir) {
-        filePath = PATH.resolve(dir, "package.json");
+        filePath = Path.resolve(dir, "package.json");
     } else {
         if (process.env.npm_package_json) {
             filePath = process.env.npm_package_json as string;
-            dir = PATH.dirname(filePath);
+            dir = Path.dirname(filePath);
         } else {
             dir = process.cwd();
-            filePath = PATH.resolve(dir, "package.json");
+            filePath = Path.resolve(dir, "package.json");
         }
     }
 
     // if package.json does not exist,
     // try to find it in the parent directory
     if (!File.exists(filePath)) {
-        const parentDir = PATH.resolve(dir, "..");
+        const parentDir = Path.resolve(dir, "..");
         if (parentDir !== dir && File.isDirectory(parentDir)) {
             return findPackageDotJsonFile(parentDir);
         } else {
