@@ -144,6 +144,9 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
         // save other commands to engineData
         this.memory.data.subCommands = otherCommands;
 
+        // Disable ascii art if command is not `ls`
+        if (mainCommand !== "ls") this.$.config.data.log.asciiArt = false;
+
         // Run on started boot cycle
         this.$.on.started(
             BootCycleFunction(ConsoleModule.prependName("Started"), async (next) => {

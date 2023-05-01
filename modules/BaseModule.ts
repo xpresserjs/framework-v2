@@ -2,6 +2,7 @@ import InXpresserError from "../errors/InXpresserError.js";
 import type { Xpresser } from "../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
 import { OC_TObject } from "object-collection/types";
+import ConsoleModule from "./console/ConsoleModule.js";
 
 /**
  * ModuleEngine Related Types
@@ -9,6 +10,13 @@ import { OC_TObject } from "object-collection/types";
 export declare module Modules {
     export enum Available {}
     export type Keywords = keyof typeof Available;
+
+    export interface Module {
+        name: string;
+        config: BaseModuleConfig;
+        customBootCycles(): string[];
+        prependName(str: string, separator?: string): string;
+    }
 }
 
 export interface BaseModuleConfig {
@@ -56,6 +64,19 @@ export default class BaseModule<MemoryData extends OC_TObject = Record<string, a
      */
     protected readonly $!: Xpresser;
 
+    // static clone<T extends typeof BaseModule>(this: T, keyword: string): T {
+    //     const config: BaseModuleConfig = { ...this.config, keyword };
+    //
+    //     const m = class Clone extends this {
+    //         static readonly config = config;
+    //     };
+    //
+    //     // set name
+    //     Object.defineProperty(m, "name", { value: this.name });
+    //
+    //     return m;
+    // }
+
     /**
      * Provide the module with the Xpresser instance.
      * @param $
@@ -95,7 +116,7 @@ export default class BaseModule<MemoryData extends OC_TObject = Record<string, a
     }
 
     /**
-     * Static Self Reference
+     * Static Self-Reference
      * @returns
      */
     $static<Self extends typeof BaseModule>() {

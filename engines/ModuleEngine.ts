@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import BaseModule, { type Modules } from "../modules/BaseModule.js";
+import BaseModule, { BaseModuleConfig, type Modules } from "../modules/BaseModule.js";
 import type { BootCycle } from "./BootCycleEngine.js";
 
 /**
@@ -17,6 +17,26 @@ declare module "../types/engine-data.js" {
             ModuleEngine: ModuleEngineMemoryData;
         }
     }
+}
+
+export interface RegisterModuleConfig {
+    /**
+     * Add Boot Cycles to add to module.
+     * This enables you to add extra boot cycles to a module.
+     * These cycles will be concatenated to the module's custom boot cycles.
+     */
+    addBootCycles?: BootCycle.Keys[];
+    /**
+     * Over
+     */
+    keyword?: Modules.Keywords;
+
+    // Todo: reconsider this option
+    // /**
+    //  * Is Copying Module?
+    //  * If you are copying a module, or registering a module that is already registered but with a different keyword.
+    //  */
+    // isCopying?: boolean;
 }
 
 /**
@@ -51,7 +71,7 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
      * @param keyword
      */
     setDefault(keyword: Modules.Keywords) {
-        // check if keyword is registered
+        // check if the keyword is registered
         if (!this.registered[keyword]) {
             throw new InXpresserError(`Module with keyword: "${keyword}" is not registered yet!.`);
         }
@@ -61,6 +81,8 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
         return this;
     }
 
+    has(keyword: Modules.Keywords): boolean;
+    has(keyword: Modules.Keywords, assert: true): boolean | never;
     has(keyword: Modules.Keywords, assert: boolean = false): boolean | never {
         if (assert) {
             const hasModule = this.has(keyword);
@@ -79,49 +101,54 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Load the current application module.
      */
-    async register<M extends typeof BaseModule<any>>(
-        Module: M,
-        config: {
-            /**
-             * Add Boot Cycles to add to module.
-             * This enables you to add extra boot cycles to a module.
-             * These cycles will be concatenated to the module's custom boot cycles.
-             */
-            addBootCycles?: BootCycle.Keys[];
-        } = {}
-    ) {
-        const name = Module.config.keyword;
-
+    async register(Module: Modules.Module, config: RegisterModuleConfig = {}) {
+        let keyword = Module.config.keyword;
         // throw error if name is undefined
-        if (!name) {
+        if (!keyword) {
             throw new InXpresserError(
                 `Module: "${Module.name}" does not have a keyword property in config!`
             );
         }
 
+        // check if custom keyword is set
+        const hasCustomKeyword = typeof config.keyword !== "undefined";
+
+        // check if the original keyword is registered
+        // this way we can detect if we are copying or not.
+        const isCopying = hasCustomKeyword && this.has(keyword as Modules.Keywords);
+        if (hasCustomKeyword) keyword = config.keyword as string;
+
         // register module
-        this.registered[Module.config.keyword] = Module;
+        this.registered[keyword] = Module as typeof BaseModule;
 
-        this.has(Module.config.keyword as Modules.Keywords, true);
+        // if it is not copying, we add boot cycles
+        if (!isCopying) {
+            // register boot cycles
+            let customCycles = [
+                ...this.registered[keyword].customBootCycles(),
+                ...(config.addBootCycles || [])
+            ];
 
-        // register boot cycles
-        let customCycles = [...Module.customBootCycles(), ...(config.addBootCycles || [])];
-        if (customCycles.length) {
-            // make sure bootCycles are unique
-            customCycles = [...new Set(customCycles)];
+            if (customCycles.length) {
+                // make sure bootCycles are unique
+                customCycles = [...new Set(customCycles)];
 
-            // Add custom cycles to boot cycles
-            this.$.addBootCycle(customCycles as BootCycle.Keys[]);
+                // Add custom cycles to boot cycles
+                this.$.addBootCycle(customCycles as BootCycle.Keys[]);
+            }
         }
     }
 
     /**
      * Register Module Using a function
      */
-    async registerFn<M extends typeof BaseModule<any>>(fn: () => M | Promise<M>) {
+    async registerFn(
+        fn: () => Modules.Module | Promise<Modules.Module>,
+        config: RegisterModuleConfig = {}
+    ) {
         const Module = await fn();
         // Register Module
-        return this.register(Module);
+        return this.register(Module, config);
     }
 
     /**
@@ -225,20 +252,57 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
     }
 
     /**
-     * If is module
-     * Run the function passed to it.
+     * Check if a module is active
+     * @param keyword - Module Keyword
      */
-    ifIs(keyword: Modules.Keywords, fn: () => void) {
-        if (this.getActive() === keyword) fn();
-        return this;
+    isActive(keyword: Modules.Keywords): boolean;
+    /**
+     * Run a function if module is active
+     * @param keyword - Module Keyword
+     * @param fn - Function to run if module is active
+     */
+    isActive(keyword: Modules.Keywords, fn: () => void): void;
+    /**
+     * Check if a module is active and run a function if provided.
+     * Note: Function will only run if the module is active.
+     * @param keyword - Module Keyword
+     * @param fn - Function to run if module is active
+     */
+    isActive(keyword: Modules.Keywords, fn?: () => void): boolean | void {
+        // if (this.getActive() === keyword) fn();
+        // return this;
+
+        const isActive = this.getActive() === keyword;
+
+        if (fn && isActive) return fn();
+
+        return isActive;
     }
 
     /**
-     * If is not module
-     * Run the function passed to it.
+     * Check if a module is not active
+     * @param keyword - Module Keyword
      */
-    ifIsNot(keyword: Modules.Keywords, fn: () => void) {
-        if (this.getActive() !== keyword) fn();
-        return this;
+    isNotActive(keyword: Modules.Keywords): boolean;
+
+    /**
+     * Run a function if module is not active
+     * @param keyword - Module Keyword
+     * @param fn - Function to run if module is not active
+     */
+    isNotActive(keyword: Modules.Keywords, fn: () => void): void;
+
+    /**
+     * Check if a module is not active and run a function if provided.
+     * Note: Function will only run if the module is not active.
+     * @param keyword - Module Keyword
+     * @param fn - Function to run if module is not active
+     */
+    isNotActive(keyword: Modules.Keywords, fn?: () => void): boolean | void {
+        const isNotActive = this.getActive() !== keyword;
+
+        if (fn && isNotActive) return fn();
+
+        return isNotActive;
     }
 }

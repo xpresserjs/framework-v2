@@ -1,7 +1,7 @@
-import type { ObjectCollectionTyped } from "object-collection";
 import InXpresserError from "../errors/InXpresserError.js";
+import type { ObjectCollectionTyped } from "object-collection";
 import type { Xpresser } from "../xpresser.js";
-import { OC_TObject } from "object-collection/types";
+import type { OC_TObject } from "object-collection/types";
 
 export interface BaseEngineConfig {
     name: string;

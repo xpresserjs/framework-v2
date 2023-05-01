@@ -1,30 +1,45 @@
-/**
- * This file represents the default config.
- * This config will be merged with the current app config
- */
-import { Config } from "./types/configs.js";
+import type { Config } from "./types/configs.js";
 import { ObjectCollectionTyped } from "object-collection";
 
 export class XpresserConfig<Datatype extends Config.Main> extends ObjectCollectionTyped<Datatype> {
-    // Check if value is true
+    /**
+     * Check if the value of a path is true
+     * @param path - Path to check
+     */
     isTrue(path: string) {
         return this.get(path) === true;
     }
 
-    // Check if value is false
+    /**
+     * Check if the value of a path is false
+     * @param path - Path to check
+     */
     isFalse(path: string) {
         return this.get(path) === false;
     }
 
+    /**
+     * Check if the value of a path is not `null` or `undefined`
+     * @param path
+     */
     isDefined(path: string) {
-        return this.has(path) && !!this.get(path);
+        const value = this.get(path);
+        return value !== null && typeof value !== "undefined";
     }
 
-    isUndefined(path: string) {
+    /**
+     * Check if the value of a path is `null` or `undefined`
+     * @param path
+     */
+    isNotdefined(path: string) {
         return !this.isDefined(path);
     }
 }
 
+/**
+ * Default Config - This config will be merged with the current app config
+ * @constructor
+ */
 export function DefaultConfig(): Config.Main {
     return {
         name: "Xpresser",

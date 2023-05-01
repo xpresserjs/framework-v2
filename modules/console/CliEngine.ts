@@ -4,7 +4,6 @@ import BaseEngine, { BaseEngineConfig } from "../../engines/BaseEngine.js";
 import ConsoleModule, { ConsoleModuleEngineData } from "./ConsoleModule.js";
 
 export declare module CliEngine {
-
     /**
      * CliCommand Action Interface
      */
@@ -78,7 +77,7 @@ export class CliEngine extends BaseEngine {
         const consoleModule = this.$.modules.getActiveInstance<ConsoleModule>();
         const commands = consoleModule.commands as Map<string, CliEngine.Command>;
 
-        // get previous command with same name.
+        // get previous command with the same name.
         // this aids extending commands
         const $super = commands.get(name);
         command = typeof command === "function" ? command($super) : command;

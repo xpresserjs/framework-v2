@@ -167,7 +167,7 @@ export default class PluginEngine extends BaseEngine {
             }
         }
 
-        this.$.modules.ifIsNot("cli", () => {
+        this.$.modules.isNotActive("cli", () => {
             if (logPlugins) {
                 this.$.console.logSuccess(`Using plugins: [${listOfPluginNamespaces.join(", ")}]`);
             } else {
