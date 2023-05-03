@@ -24,7 +24,17 @@ declare module "../../types/engine-data.js" {
  * Extend App Config
  */
 export interface ConsoleModuleConfig {
+    /**
+     * Default Command - the command to run when no command is passed.
+     */
     defaultCommand?: string;
+    /**
+     * Add Default Commands - add default commands to cli.
+     * if false, you will have to add commands manually.
+     *
+     * This can be useful if you want to use xpresser cli for other things.
+     */
+    addDefaultCommands?: boolean;
 }
 
 declare module "../../types/configs.js" {
@@ -161,8 +171,11 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
 
     #setDefaultConfig() {
         const currentConfig = this.$.config.get("cli", {});
+
+        // default config
         const defaultConfig: ConsoleModuleConfig = {
-            defaultCommand: "ls"
+            defaultCommand: "ls",
+            addDefaultCommands: true
         };
 
         // merge default config with current config
@@ -173,8 +186,10 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
      * Boot Module
      */
     async #boot() {
-        // add default commands
-        await this.#addDefaultCommands();
+        if (this.$.config.data.cli!.addDefaultCommands) {
+            // add default commands
+            await this.#addDefaultCommands();
+        }
 
         // Run `consoleInit` boot cycle
         await this.$.runBootCycle("consoleInit");
@@ -222,22 +237,33 @@ class ConsoleModule extends BaseModule<ConsoleModuleEngineData> {
                         return arr;
                     }, [] as string[]);
 
-                const argumentsText = missingArgs.length > 1 ? "arguments" : "argument";
+                const argumentText = missingArgs.length > 1 ? "arguments" : "argument";
 
                 this.console.logWarning(
-                    `Command "${mainCommand}" requires a minimum of (${numberOfRequiredArgs}) ${argumentsText}!!`
+                    `Command "${mainCommand}" requires a minimum of (${numberOfRequiredArgs}) ${argumentText}!!`
                 );
 
-                return this.console.log(`Required ${argumentsText}: [${missingArgs.join(", ")}]`);
+                return this.console.log(`Required ${argumentText}: [${missingArgs.join(", ")}]`);
             }
         }
 
         try {
             // Run command
-            await command.action({ args: subCommands, $: this.$ });
+            await this.runCommand(command, subCommands);
         } catch (e: any) {
             return this.console.logError(InXpresserError.use(e));
         }
+    }
+
+    /**
+     * Run command function.
+     * This function is not made private on purpose.
+     * To enable extendability, it allows you to change how commands run in custom modules.
+     * @param command
+     * @param args
+     */
+    async runCommand(command: CliEngine.Command, args: string[] = []) {
+        await command.action({ args, $: this.$ });
     }
 }
 
