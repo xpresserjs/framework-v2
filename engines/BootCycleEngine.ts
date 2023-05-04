@@ -63,14 +63,16 @@ export default class BootCycleEngine {
                     const func = BootCycleFunction(funcName, async (next, xpresser) => {
                         // Run todo function
                         await todo(() => {
-                            // Todo: Add
-                            $.console.typedDebugIf("bootCycle.irrelevantNextError", () =>
+                            $.console.typedDebugIf("bootCycle.irrelevantNextError", () => {
                                 $.console.logError(
-                                    new InXpresserError(
-                                        `Next function called in $.on.${cycle$}(${funcName}) is irrelevant.`
-                                    )
-                                )
-                            );
+                                    new InXpresserError([
+                                        "",
+                                        `Next function called in "$.on.${cycle$}(${funcName})" is irrelevant.`,
+                                        `To fix this, remove next() call from "${funcName}" function.`,
+                                        `Or set "debug.bootCycle.irrelevantNextError" to false in your config file.`
+                                    ])
+                                );
+                            });
                         }, xpresser);
 
                         // Call next function

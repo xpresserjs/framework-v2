@@ -12,7 +12,9 @@ class InXpresserError extends Error {
     // Holds human-readable DateString
     public dateString: string;
 
-    constructor(message?: string, name = "InXpresserError") {
+    constructor(message?: string | string[], name = "InXpresserError") {
+        if (Array.isArray(message)) message = message.join(os.EOL);
+
         super(message);
 
         this.date = new Date();
