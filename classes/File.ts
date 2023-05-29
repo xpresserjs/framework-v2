@@ -2,7 +2,6 @@
 
 import fs from "node:fs";
 import Path from "node:path";
-import fse from "fs-extra";
 
 type encodingType =
     | "ascii"
@@ -24,14 +23,6 @@ export default class File {
      */
     static fs() {
         return fs;
-    }
-
-    /**
-     * Return Node fs-extra getInstance
-     * @return {fse}
-     */
-    static fsExtra() {
-        return fse;
     }
 
     /**
