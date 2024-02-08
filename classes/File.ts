@@ -1,7 +1,7 @@
 // noinspection JSUnusedGlobalSymbols
 
 import fs from "node:fs";
-import Path from "node:path";
+import * as Path from "node:path";
 
 type encodingType =
     | "ascii"

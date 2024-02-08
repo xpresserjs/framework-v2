@@ -1,5 +1,5 @@
 import Url from "node:url";
-import Path from "node:path";
+import * as Path from "node:path";
 
 /**
  * Provide cjs __dirname support.

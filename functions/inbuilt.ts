@@ -1,6 +1,6 @@
 import os from "node:os";
 import fs from "node:fs";
-import Path from "node:path";
+import * as Path from "node:path";
 import File from "../classes/File.js";
 
 /**
