@@ -404,7 +404,7 @@ export class Xpresser {
     }
 
     /**
-     * Same as process
+     * Same as `process.exit()`
      * @param args
      */
     exit(...args: any[]) {
