@@ -19,8 +19,8 @@ export declare module BootCycle {
     }
 
     export type Keys = keyof typeof Cycles;
-    export type Keys$ = `${Keys}$`;
-    export type On = Record<Keys | Keys$, (fn: Func) => On>;
+    export type NextKeys = `next_${Keys}`;
+    export type On = Record<Keys | NextKeys, (fn: Func) => On>;
 }
 
 /**
@@ -56,7 +56,7 @@ export default class BootCycleEngine {
                 });
 
                 // Add $.on.cycle$ function
-                const cycle$ = `${cycle}$` as BootCycle.Keys;
+                const cycle$ = `next_${cycle}` as BootCycle.Keys;
                 $.on[cycle$] = NamedFunc(cycle$, (todo) => {
                     // Make cycle function with next called
                     const funcName = todo.name || "anonymous";
