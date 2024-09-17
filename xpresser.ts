@@ -317,7 +317,7 @@ export class Xpresser {
                     // log completed if debug config is enabled
                     this.console.debugIf(
                         "bootCycleFunction.completed",
-                        `<----- [${lastIndexFnName}] completed.`
+                        `-----> [${cycle}(${lastIndexFnName})] completed.`
                     );
 
                     // get current cycle function
@@ -336,9 +336,10 @@ export class Xpresser {
                     try {
                         // log started if debug config is enabled
                         if (currentCycleFn.name !== $onCycleComplete.name) {
+                            // log started if debug config is enabled
                             this.console.debugIf(
                                 "bootCycleFunction.started",
-                                `-----> [${currentCycleFn.name}] started.`
+                                `-----> [${cycle}(${currentCycleFn.name})] started.`
                             );
                         }
 
@@ -358,7 +359,7 @@ export class Xpresser {
                     // log started if debug config is enabled
                     this.console.debugIf(
                         "bootCycleFunction.started",
-                        `-----> [${currentCycleFnName}] started.`
+                        `-----> [${cycle}(${currentCycleFnName})] started.`
                     );
 
                     await currentCycleFn(next, this);
@@ -374,23 +375,12 @@ export class Xpresser {
     /**
      * onNext - Run boot cycle function with `next` function automatically added
      */
-    onNext(cycle: BootCycle.Keys, fn: BootCycle.Func) {
+    onNext(cycle: BootCycle.Keys, fn: BootCycle.FuncWithoutNext) {
         // Make cycle function with next called
         const funcName = fn.name || "anonymous";
         const func = BootCycleFunction(funcName, async (next, $) => {
             // Run todo function
-            await fn(() => {
-                $.console.typedDebugIf("bootCycle.irrelevantNextError", () => {
-                    $.console.logError(
-                        new InXpresserError([
-                            "",
-                            `Next function called in "${cycle}(${funcName})" is irrelevant.`,
-                            `To fix this, remove next() call from "${funcName}" function.`,
-                            `Or set "debug.bootCycle.irrelevantNextError" to false in your config file.`
-                        ])
-                    );
-                });
-            }, $);
+            await fn($);
 
             // Call next function
             next();

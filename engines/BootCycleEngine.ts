@@ -5,6 +5,9 @@ export declare module BootCycle {
     // Boot Cycle Function
     export type Func = (next: () => void, $: Xpresser) => any;
 
+    // Boot Cycle Function without next
+    export type FuncWithoutNext = ($: Xpresser) => any;
+
     // Server Module BootCycles
     // Make use of interface to make it extensible
     export interface DefaultCycles extends Record<string, Func[]> {}
