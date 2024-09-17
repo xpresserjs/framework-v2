@@ -1,5 +1,4 @@
 import type { Xpresser } from "../xpresser.js";
-import InXpresserError from "../errors/InXpresserError.js";
 import { NamedFunc } from "../functions/utils.js";
 
 export declare module BootCycle {
@@ -19,8 +18,7 @@ export declare module BootCycle {
     }
 
     export type Keys = keyof typeof Cycles;
-    export type NextKeys = `next_${Keys}`;
-    export type On = Record<Keys | NextKeys, (fn: Func) => On>;
+    export type On = Record<Keys, (fn: Func) => On>;
 }
 
 /**
@@ -52,36 +50,6 @@ export default class BootCycleEngine {
                 $.on[cycle] = NamedFunc(cycle, (todo) => {
                     $.addToBootCycle(cycle, todo);
                     // This is returned to allow chaining
-                    return $.on;
-                });
-
-                // Add $.on.cycle$ function
-                const cycle$ = `next_${cycle}` as BootCycle.Keys;
-                $.on[cycle$] = NamedFunc(cycle$, (todo) => {
-                    // Make cycle function with next called
-                    const funcName = todo.name || "anonymous";
-                    const func = BootCycleFunction(funcName, async (next, xpresser) => {
-                        // Run todo function
-                        await todo(() => {
-                            $.console.typedDebugIf("bootCycle.irrelevantNextError", () => {
-                                $.console.logError(
-                                    new InXpresserError([
-                                        "",
-                                        `Next function called in "$.on.${cycle$}(${funcName})" is irrelevant.`,
-                                        `To fix this, remove next() call from "${funcName}" function.`,
-                                        `Or set "debug.bootCycle.irrelevantNextError" to false in your config file.`
-                                    ])
-                                );
-                            });
-                        }, xpresser);
-
-                        // Call next function
-                        next();
-                    });
-
-                    // Add to cycle
-                    $.addToBootCycle(cycle, func);
-
                     return $.on;
                 });
             }

@@ -3,7 +3,7 @@ import InXpresserError from "./errors/InXpresserError.js";
 import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
-import BootCycleEngine, { BootCycle } from "./engines/BootCycleEngine.js";
+import BootCycleEngine, { BootCycle, BootCycleFunction } from "./engines/BootCycleEngine.js";
 import { DefaultConfig, XpresserConfig } from "./config.js";
 import ModuleEngine from "./engines/ModuleEngine.js";
 import type { Config } from "./types/configs.js";
@@ -182,6 +182,7 @@ export class Xpresser {
      */
     getBootCyclesStats() {
         const stats = {} as Record<BootCycle.Keys, number>;
+
         for (const key of Object.keys(this.#bootCycles) as BootCycle.Keys[]) {
             stats[key] = this.#bootCycles[key].length;
         }
@@ -368,6 +369,37 @@ export class Xpresser {
                 return $onCycleComplete();
             }
         });
+    }
+
+    /**
+     * onNext - Run boot cycle function with `next` function automatically added
+     */
+    onNext(cycle: BootCycle.Keys, fn: BootCycle.Func) {
+        // Make cycle function with next called
+        const funcName = fn.name || "anonymous";
+        const func = BootCycleFunction(funcName, async (next, $) => {
+            // Run todo function
+            await fn(() => {
+                $.console.typedDebugIf("bootCycle.irrelevantNextError", () => {
+                    $.console.logError(
+                        new InXpresserError([
+                            "",
+                            `Next function called in "${cycle}(${funcName})" is irrelevant.`,
+                            `To fix this, remove next() call from "${funcName}" function.`,
+                            `Or set "debug.bootCycle.irrelevantNextError" to false in your config file.`
+                        ])
+                    );
+                });
+            }, $);
+
+            // Call next function
+            next();
+        });
+
+        // Add to cycle
+        this.addToBootCycle(cycle, func);
+
+        return this;
     }
 
     /**
