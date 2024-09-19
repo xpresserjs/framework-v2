@@ -36,15 +36,15 @@ export declare module BootCycle {
         started = "started",
 
         /**
-         * `beforeStop` - Runs before xpresser stops
+         * `stop` - Runs before xpresser stops
          */
-        beforeStop = "beforeStop",
+        stop = "stop",
 
         /**
-         * `stop` - Runs after xpresser stops
+         * `stopped` - Runs after xpresser stops
          * i.e The program is stopped
          */
-        stop = "stop"
+        stopped = "stopped"
     }
 
     export type Keys = keyof typeof Cycles;

@@ -56,7 +56,9 @@ export class Xpresser {
         beforeStart: [],
         start: [],
         boot: [],
-        started: []
+        started: [],
+        stop: [],
+        stopped: []
     };
 
     /**
@@ -476,16 +478,13 @@ export class Xpresser {
      */
     async stop() {
         // Run `beforeStop` cycle
-        await this.runBootCycle("beforeStop");
+        await this.runBootCycle("stop");
 
         // Run `stop` cycle
-        await this.runBootCycle("stop");
+        await this.runBootCycle("stopped");
 
         // Set started to false
         this.#has.started = false;
-
-        // Log Calmly
-        this.console.logCalmly(`<----- ${this.config.getTyped("name")} stopped. ----->`);
 
         return this;
     }
