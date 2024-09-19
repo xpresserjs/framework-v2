@@ -471,6 +471,26 @@ export class Xpresser {
     }
 
     /**
+     * Stop the application
+     * Stops the application by running the `beforeStop` and `stop` boot cycles
+     */
+    async stop() {
+        // Run `beforeStop` cycle
+        await this.runBootCycle("beforeStop");
+
+        // Run `stop` cycle
+        await this.runBootCycle("stop");
+
+        // Set started to false
+        this.#has.started = false;
+
+        // Log Calmly
+        this.console.logCalmly(`<----- ${this.config.getTyped("name")} stopped. ----->`);
+
+        return this;
+    }
+
+    /**
      * Check if plugins has been loaded
      */
     hasLoadedPlugins() {

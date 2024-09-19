@@ -14,10 +14,37 @@ export declare module BootCycle {
 
     // Custom Module BootCycles
     export enum Cycles {
+        /**
+         * `beforeStart` - Runs before xpresser starts, after modules are registered
+         */
         beforeStart = "beforeStart",
+
+        /**
+         * `start` - Runs after xpresser starts
+         */
         start = "start",
+
+        /**
+         * `boot` - Runs after xpresser starts and plugins are loaded
+         */
         boot = "boot",
-        started = "started"
+
+        /**
+         * `started` - Runs after xpresser starts, and all required setup is done
+         * i.e The program is running
+         */
+        started = "started",
+
+        /**
+         * `beforeStop` - Runs before xpresser stops
+         */
+        beforeStop = "beforeStop",
+
+        /**
+         * `stop` - Runs after xpresser stops
+         * i.e The program is stopped
+         */
+        stop = "stop"
     }
 
     export type Keys = keyof typeof Cycles;
