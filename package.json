@@ -23,7 +23,7 @@
     "build:before": "rm -rf build",
     "build:after": "rm build/package.json",
     "dev:ts": "npx nodemon dev/test.ts",
-    "dev:ts:cli": "npcurx nodemon dev/test.ts -- cli ls",
+    "dev:ts:cli": "npx nodemon dev/test.ts -- cli ls",
     "dev:js": "npx nodemon build/dev/test.js",
     "dev:js:cli": "npx nodemon build/dev/test.js -- cli ls",
     "bun:dev:ts": "bun run --watch dev/test.ts",
@@ -36,8 +36,8 @@
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/lodash-es": "^4.17.12",
-    "@types/node": "^22.5.5",
-    "nodemon": "^3.1.4",
+    "@types/node": "^22.6.1",
+    "nodemon": "^3.1.7",
     "prettier": "^3.3.3",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
