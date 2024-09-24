@@ -21,7 +21,7 @@ export interface PluginData {
     // Paths - Paths to plugin files.
     paths: Record<string, any>;
 
-    // Publishable - If plugin is publishable using xjs publish command. 
+    // Publishable - If plugin is publishable using xjs publish command.
     publishable?: boolean;
 
     // Importable - If plugin is importable using xjs import command.
@@ -210,7 +210,7 @@ export default class PluginEngine extends BaseEngine {
                     ))!;
 
                     // Save to engineData
-                    this.memory.set("namespaces", PluginNamespaceToData);
+                    this.useMemory().set("namespaces", PluginNamespaceToData);
                 } catch (e) {
                     // Throw any error from processing and stop xpresser.
                     this.$.console.logPerLine(
@@ -241,12 +241,14 @@ export default class PluginEngine extends BaseEngine {
 
             if (compareWith === ">=" && compareVersion(xpresserVersion, version) === -1) {
                 this.$.console.logErrorAndExit(
-                    `Plugin: [${data.namespace}] requires xpresser version [${compareWith + version
+                    `Plugin: [${data.namespace}] requires xpresser version [${
+                        compareWith + version
                     }],\nUpgrade xpresser to continue.`
                 );
             } else if (compareWith === "<=" && compareVersion(version, xpresserVersion) === -1) {
                 this.$.console.logErrorAndExit(
-                    `Plugin: [${data.namespace}] requires xpresser version [${compareWith + version
+                    `Plugin: [${data.namespace}] requires xpresser version [${
+                        compareWith + version
                     }],\nDowngrade xpresser to continue.`
                 );
             }
@@ -318,7 +320,8 @@ export default class PluginEngine extends BaseEngine {
                             // Stop if missing package
                             if (missingPkgs)
                                 return this.$.console.logErrorAndExit(
-                                    `Install required ${missingPkgs > 1 ? "dependencies" : "dependency"
+                                    `Install required ${
+                                        missingPkgs > 1 ? "dependencies" : "dependency"
                                     } and restart server.`
                                 );
                         }

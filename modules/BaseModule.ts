@@ -63,19 +63,6 @@ export default class BaseModule<MemoryData extends OC_TObject = Record<string, a
      */
     protected readonly $!: Xpresser;
 
-    // static clone<T extends typeof BaseModule>(this: T, keyword: string): T {
-    //     const config: BaseModuleConfig = { ...this.config, keyword };
-    //
-    //     const m = class Clone extends this {
-    //         static readonly config = config;
-    //     };
-    //
-    //     // set name
-    //     Object.defineProperty(m, "name", { value: this.name });
-    //
-    //     return m;
-    // }
-
     /**
      * Provide the module with the Xpresser instance.
      * @param $

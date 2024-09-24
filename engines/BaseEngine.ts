@@ -12,7 +12,7 @@ export interface BaseEngineConfig {
     /**
      * If true, engine memory will be unique.
      * When memory is unique, you can only have one instance of the engine.
-     * 
+     *
      * @default true
      */
     uniqueMemory?: boolean;
@@ -35,13 +35,13 @@ export default class BaseEngine<MemoryData extends OC_TObject = Record<string, a
     /**
      * Engine Memory - This is where all data for this engine is stored.
      * It extends xpresser's engine data.
-     * 
+     *
      * @example
      * this.memory.set('key', 'value')
      * // is same as
      * $.engineData.set('engines.{engineName}.key', 'value')
      */
-    protected memory!: ObjectCollectionTyped<MemoryData>;
+    protected memory?: ObjectCollectionTyped<MemoryData>;
 
     /**
      * Initialize Engine
@@ -64,28 +64,39 @@ export default class BaseEngine<MemoryData extends OC_TObject = Record<string, a
         // enable unique memory by default
         if (typeof config.uniqueMemory === "undefined") config.uniqueMemory = true;
 
-        // get Engine Name
-        const name = config.name;
-
         // set xpresser instance
         Object.defineProperty(this, "$", { enumerable: false, value: $ });
+    }
 
-        // get modules engine data
-        const engines = this.$.engineData.path(`engines`);
+    /**
+     * Use Memory
+     */
+    useMemory(): ObjectCollectionTyped<MemoryData> {
+        if (!this.memory) {
+            // initialize memory
+            const config = this.$static().config;
 
-        // if this engine already exists and uniqueMemory === true, throw error
-        if (config.uniqueMemory && engines.has(name)) {
-            throw new InXpresserError(
-                `EngineClass with name: "${name}" already has memory data!`,
-                "UniqueMemoryError"
-            );
+            // get Engine Name
+            const name = config.name;
+
+            // get modules engine data
+            const engines = this.$.engineData.path(`engines`);
+
+            // if this engine already exists and uniqueMemory === true, throw error
+            if (config.uniqueMemory && engines.has(name)) {
+                throw new InXpresserError(
+                    `EngineClass with name: "${name}" already has memory data!`,
+                    "UniqueMemoryError"
+                );
+            }
+
+            // create memory data
+            Object.defineProperty(this, "memory", {
+                enumerable: false,
+                value: engines.path(name)
+            });
         }
-
-        // create memory data
-        Object.defineProperty(this, "memory", {
-            enumerable: false,
-            value: engines.path(name)
-        });
+        return this.memory as ObjectCollectionTyped<MemoryData>;
     }
 
     /**
@@ -99,7 +110,7 @@ export default class BaseEngine<MemoryData extends OC_TObject = Record<string, a
     }
 
     /**
-     * Static Self Reference
+     * Static Self-Reference
      * @returns
      */
     protected $static<Self extends typeof BaseEngine>() {

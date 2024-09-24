@@ -155,8 +155,10 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
      * Get the current active modules.
      */
     public getActive() {
+        const memory = this.useMemory();
+
         // if already in return
-        if (this.memory.data.activeModule) return this.memory.data.activeModule;
+        if (memory.data.activeModule) return memory.data.activeModule;
 
         // The second argument passed to console is the active module
         let activeModule: string | undefined = process.argv[2];
@@ -165,7 +167,7 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
         if (!activeModule) activeModule = this.#default;
 
         // save to engine
-        this.memory.data.activeModule = activeModule;
+        memory.data.activeModule = activeModule;
 
         // return
         return activeModule;
