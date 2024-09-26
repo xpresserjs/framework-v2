@@ -215,15 +215,14 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
      * @private
      */
     #noActiveModuleError() {
-        this.$.console.logError(
-            `No 'default' module found, Set default module or pass a module to run.`
-        );
+        this.$.console.logError(`No 'default' module defined`);
+        this.$.console.logError(`Set default module or pass a module to run.`);
 
         const registeredKeys = Object.keys(this.registered);
         if (registeredKeys.length) {
             // show help
             this.$.console.spacing();
-            this.$.console.log(`Below are the available modules:`);
+            this.$.console.log(`Available modules:`);
             // log all registered modules (numbered)
             for (const [index, keyword] of registeredKeys.entries()) {
                 // get module
