@@ -1,6 +1,6 @@
 {
   "name": "@xpresser/framework",
-  "version": "0.0.38",
+  "version": "0.0.39",
   "description": "Xpresser v2 Core",
   "type": "module",
   "main": "./build/index.js",
