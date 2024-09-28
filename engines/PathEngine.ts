@@ -2,7 +2,7 @@ import * as Path from "node:path";
 import InXpresserError from "../errors/InXpresserError.js";
 import { removeLeadingSlash } from "../functions/path.js";
 import type { Config } from "../types/configs.js";
-import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
+import BaseEngine, { type BaseEngineConfig } from "./BaseEngine.js";
 
 export declare module SmartPaths {
     enum Add {

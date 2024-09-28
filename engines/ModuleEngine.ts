@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
+import BaseEngine, { type BaseEngineConfig } from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseModule, { type Modules } from "../modules/BaseModule.js";
 import type { BootCycle } from "./BootCycleEngine.js";

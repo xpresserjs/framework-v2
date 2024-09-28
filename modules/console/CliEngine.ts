@@ -1,7 +1,7 @@
 import type { Xpresser } from "../../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
-import BaseEngine, { BaseEngineConfig } from "../../engines/BaseEngine.js";
-import ConsoleModule, { ConsoleModuleEngineData } from "./ConsoleModule.js";
+import BaseEngine, { type BaseEngineConfig } from "../../engines/BaseEngine.js";
+import ConsoleModule, { type ConsoleModuleEngineData } from "./ConsoleModule.js";
 
 export declare module CliEngine {
     /**

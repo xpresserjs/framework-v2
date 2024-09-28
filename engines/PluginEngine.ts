@@ -1,4 +1,4 @@
-import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
+import BaseEngine, { type BaseEngineConfig } from "./BaseEngine.js";
 import { Xpresser } from "../xpresser.js";
 import File from "../classes/File.js";
 import InXpresserError from "../errors/InXpresserError.js";

@@ -1,7 +1,7 @@
 import InXpresserError from "../errors/InXpresserError.js";
 import type { Xpresser } from "../xpresser.js";
 import type { ObjectCollectionTyped } from "object-collection";
-import { OC_TObject } from "object-collection/types";
+import { type OC_TObject } from "object-collection/types";
 
 /**
  * ModuleEngine Related Types

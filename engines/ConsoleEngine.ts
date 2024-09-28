@@ -2,7 +2,7 @@ import os from "node:os";
 import chalk from "chalk";
 import { touchMyMustache } from "../functions/inbuilt.js";
 import InXpresserError from "../errors/InXpresserError.js";
-import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
+import BaseEngine, { type BaseEngineConfig } from "./BaseEngine.js";
 import type { Crawl } from "../types/path-crawler.js";
 import type { Config } from "../types/configs.js";
 import { upperFirst } from "lodash-es";
