@@ -3,7 +3,6 @@ node_modules
 .vscode
 dev
 about
-build/dev
 
 *.log
 

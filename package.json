@@ -15,9 +15,6 @@
       "types": "./build/*.d.ts"
     }
   },
-  "files": [
-    "build"
-  ],
   "repository": "https://github.com/xpresserjs/framework-v2",
   "author": "xpresserjs",
   "license": "MIT",
