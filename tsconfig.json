@@ -24,7 +24,7 @@
       "@types/lodash"
     ],
     "allowImportingTsExtensions": false,
-    "verbatimModuleSyntax": false
+    "verbatimModuleSyntax": true
   },
   "exclude": [
     "./node_modules",
