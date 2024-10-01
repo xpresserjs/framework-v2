@@ -28,12 +28,16 @@
     "dev:js:cli": "npx nodemon build/dev/test.js -- cli ls",
     "bun:dev:ts": "bun run --watch dev/test.ts",
     "bun:dev:ts:cli": "bun run --watch dev/test.ts cli ls",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "test": "npx tsx bin/test.ts",
+    "test:watch": "npx tsx --watch bin/test.ts"
   },
   "engines": {
     "node": ">=16"
   },
   "devDependencies": {
+    "@japa/assert": "^3.0.0",
+    "@japa/runner": "^3.1.4",
     "@types/fs-extra": "^11.0.4",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^22.6.1",

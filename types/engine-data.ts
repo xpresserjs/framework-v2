@@ -1,3 +1,5 @@
+import { InlinePlugin } from "../engines/PluginEngine.js";
+
 /**
  * Engine Data Type
  */
@@ -12,5 +14,6 @@ export declare module EngineData {
         };
         engines: EnginesMemory;
         modules: ModulesMemory;
+        inlinePlugins: Record<string, InlinePlugin>;
     }
 }

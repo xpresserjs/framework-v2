@@ -4,7 +4,6 @@ import File from "../classes/File.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import { compareVersion, importDefault, hasPkg } from "../functions/module.js";
 import { ObjTyped } from "object-collection/exports";
-
 /**
  * Plugin data type for plugin index files.
  */
@@ -26,10 +25,13 @@ export interface PluginData {
 
     // Importable - If plugin is importable using xjs import command.
     importable?: boolean;
+
+    // inline - If plugin is inline.
+    inline?: boolean;
 }
 
 export interface XpresserPlugin {
-    dependsOn?: (plugin: PluginData, $: Xpresser) => string[] | Promise<string[]>;
+    dependsOn?: () => string[] | Promise<string[]>;
     run?: (plugin: PluginData, $: Xpresser) => void | Promise<void>;
 }
 
@@ -49,7 +51,21 @@ export interface PluginUseDotJson {
     use_index?: string;
 }
 
-export default class PluginEngine extends BaseEngine {
+/**
+ * Inline Plugin
+ */
+export type InlinePluginUseConfig = Pick<PluginUseDotJson, "namespace">;
+
+export type InlinePlugin = {
+    config: InlinePluginUseConfig;
+    plugin: XpresserPlugin;
+};
+
+type EngineMemoryData = {
+    inlinePlugins: Array<InlinePlugin>;
+};
+
+export default class PluginEngine extends BaseEngine<EngineMemoryData> {
     /**
      * Base Engine Config
      */
@@ -57,6 +73,11 @@ export default class PluginEngine extends BaseEngine {
         name: "Xpresser/PluginEngine",
         uniqueMemory: true
     };
+
+    constructor($: Xpresser) {
+        super($);
+        this.useMemory();
+    }
 
     /**
      * Check if plugin is valid.
@@ -192,9 +213,9 @@ export default class PluginEngine extends BaseEngine {
         });
 
         /**
-         * PluginNamespaceToData - Holds plugin data using namespaces as keys.
+         * pluginEngineData - Holds plugin data using namespaces as keys.
          */
-        const PluginNamespaceToData: Record<string, PluginData> = {};
+        const pluginEngineData = this.memory!.path("namespaces");
         for (const plugin of Object.keys(loadedPlugins)) {
             if (plugin.length) {
                 // get plugin real path.
@@ -202,15 +223,11 @@ export default class PluginEngine extends BaseEngine {
 
                 // Try processing plugin use.json
                 try {
-                    const $data = pluginData[plugin];
-                    PluginNamespaceToData[$data.namespace] = (await this.#usePlugin(
-                        plugin,
-                        $pluginPath,
-                        $data
-                    ))!;
+                    let use = pluginData[plugin];
+                    const data = await this.#usePlugin(plugin, $pluginPath, use);
 
                     // Save to engineData
-                    this.useMemory().set("namespaces", PluginNamespaceToData);
+                    pluginEngineData!.set(data.namespace, data);
                 } catch (e) {
                     // Throw any error from processing and stop xpresser.
                     this.$.console.logPerLine(
@@ -220,6 +237,9 @@ export default class PluginEngine extends BaseEngine {
                 }
             }
         }
+
+        // Process Inline Plugins
+        await this.#useInlinePlugins();
     }
 
     #loadPluginUseData(pluginPath: string): any {
@@ -279,58 +299,7 @@ export default class PluginEngine extends BaseEngine {
                 );
 
                 if (indexFileData) {
-                    /**
-                     * Run plugin indexFile.
-                     */
-                    const { run, dependsOn } = indexFileData;
-
-                    // check for packages plugin dependsOn
-                    if (dependsOn && typeof dependsOn === "function") {
-                        let pluginDependsOn: string[] | undefined = await dependsOn(
-                            pluginData,
-                            this.$
-                        );
-
-                        // Validate function return type.
-                        if (!pluginDependsOn || !Array.isArray(pluginDependsOn))
-                            return this.$.console.logErrorAndExit(
-                                `dependsOn() function for plugin {${pluginData.namespace}} must return an array of packages.`
-                            );
-
-                        // Log warning for missing required packages.
-                        if (pluginDependsOn.length) {
-                            let missingPkgs = 0;
-
-                            // Loop through and check packages.
-                            pluginDependsOn.forEach((pkg) => {
-                                // Show warning for every missing package.
-                                if (!hasPkg(pkg)) {
-                                    // Intro log.
-                                    if (missingPkgs === 0)
-                                        this.$.console.logError(
-                                            `Plugin: (${pluginData.namespace}) requires the following dependencies:`
-                                        );
-
-                                    console.log(`- ${pkg}`);
-
-                                    missingPkgs++;
-                                }
-                            });
-
-                            // Stop if missing package
-                            if (missingPkgs)
-                                return this.$.console.logErrorAndExit(
-                                    `Install required ${
-                                        missingPkgs > 1 ? "dependencies" : "dependency"
-                                    } and restart server.`
-                                );
-                        }
-                    }
-
-                    /**
-                     * Call Run function.
-                     */
-                    if (run && typeof run === "function") await run(pluginData, this.$);
+                    await this.#processPlugin(indexFileData, pluginData);
                 }
             }
         }
@@ -374,12 +343,101 @@ export default class PluginEngine extends BaseEngine {
         // return real path.
         return file;
     }
+
+    async #processPlugin(plugin: XpresserPlugin, pluginData: PluginData) {
+        /**
+         * Run plugin indexFile.
+         */
+        const { run, dependsOn } = plugin;
+
+        // check for packages plugin dependsOn
+        if (dependsOn && typeof dependsOn === "function") {
+            let pluginDependsOn: string[] | undefined = await dependsOn();
+
+            // Validate function return type.
+            if (!pluginDependsOn || !Array.isArray(pluginDependsOn))
+                return this.$.console.logErrorAndExit(
+                    `dependsOn() function for plugin {${pluginData.namespace}} must return an array of packages.`
+                );
+
+            // Log warning for missing required packages.
+            if (pluginDependsOn.length) {
+                let missingPkgs = 0;
+
+                // Loop through and check packages.
+                pluginDependsOn.forEach((pkg) => {
+                    // Show warning for every missing package.
+                    if (!hasPkg(pkg)) {
+                        // Intro log.
+                        if (missingPkgs === 0)
+                            this.$.console.logError(
+                                `Plugin: (${pluginData.namespace}) requires the following dependencies:`
+                            );
+
+                        console.log(`- ${pkg}`);
+
+                        missingPkgs++;
+                    }
+                });
+
+                // Stop if missing package
+                if (missingPkgs)
+                    return this.$.console.logErrorAndExit(
+                        `Install required ${
+                            missingPkgs > 1 ? "dependencies" : "dependency"
+                        } and restart.`
+                    );
+            }
+        }
+
+        /**
+         * Call Run function.
+         */
+        if (run && typeof run === "function") await run(pluginData, this.$);
+    }
+
+    /**
+     * Process inline plugins
+     */
+    async #useInlinePlugins() {
+        // get inline plugins
+        const inlinePlugins = this.$.engineData.data.inlinePlugins;
+
+        const PluginNamespaceToData = this.memory!.path("namespaces");
+
+        // loop through inline plugins
+        for (const key in inlinePlugins) {
+            const inlinePlugin = inlinePlugins[key];
+            const { config, plugin } = inlinePlugin;
+
+            // use and process plugin
+            const data = await this.#usePlugin(config.namespace, "", config);
+            await this.#processPlugin(plugin, data);
+            data.inline = true;
+
+            // Save to engineData
+            PluginNamespaceToData.set(config.namespace, data);
+        }
+    }
 }
 
+/**
+ * Define Plugin
+ * @param plugin
+ */
 export function definePlugin(plugin: XpresserPlugin) {
     // validate plugin object
     PluginEngine.validatePluginObject(plugin);
 
     // return plugin object
     return plugin;
+}
+
+/**
+ * Define Inline Plugin
+ * @param use
+ * @param plugin
+ */
+export function defineInlinePlugin(namespace: string, plugin: XpresserPlugin): InlinePlugin {
+    return { config: { namespace }, plugin: definePlugin(plugin) };
 }

@@ -238,8 +238,6 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
 
             this.$.console.spacing();
         }
-
-        return this.$.exit();
     }
 
     /**
