@@ -1,6 +1,6 @@
 {
   "name": "@xpresser/framework",
-  "version": "0.0.44",
+  "version": "0.0.45",
   "description": "Xpresser v2 Core",
   "type": "module",
   "exports": {
