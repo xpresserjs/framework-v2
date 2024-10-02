@@ -3,7 +3,7 @@ import InXpresserError from "./errors/InXpresserError.js";
 import File from "./classes/File.js";
 import { __dirname } from "./functions/path.js";
 import ConsoleEngine from "./engines/ConsoleEngine.js";
-import BootCycleEngine, { BootCycle, BootCycleFunction } from "./engines/BootCycleEngine.js";
+import BootCycleEngine, { type BootCycle, BootCycleFunction } from "./engines/BootCycleEngine.js";
 import { DefaultConfig, XpresserConfig } from "./config.js";
 import ModuleEngine from "./engines/ModuleEngine.js";
 import type { Config } from "./types/configs.js";
@@ -11,6 +11,7 @@ import type { EngineData } from "./types/engine-data.js";
 import type BaseEngine from "./engines/BaseEngine.js";
 import PathEngine from "./engines/PathEngine.js";
 import { findPackageDotJsonFile, getLocalExternalIp } from "./functions/inbuilt.js";
+import type { InlinePlugin } from "./engines/PluginEngine.js";
 
 export class Xpresser {
     /**
@@ -447,7 +448,8 @@ export class Xpresser {
         // Set started to true
         this.#has.started = true;
 
-        await this.modules.initializeActiveModule();
+        const initialized = await this.modules.initializeActiveModule();
+        if (!initialized) return this;
 
         // Set registered flag
         this.#has.registeredModules = true;
@@ -543,9 +545,24 @@ export class Xpresser {
         // Load Plugins
         const { default: PluginEngine } = await import("./engines/PluginEngine.js");
         const pluginEngine = this.engine(PluginEngine);
+
         await pluginEngine.loadPluginsFromJson();
+        await pluginEngine.loadInlinePlugins();
+
         this.#has.loadedPlugins = true;
 
         return this;
+    }
+
+    /**
+     * Use Inline Plugin
+     */
+    usePlugin(plugin: InlinePlugin) {
+        if (this.#has.loadedPlugins) {
+            throw new InXpresserError("Cannot use plugin after plugins have been loaded.");
+        }
+
+        // add plugin to inline plugins
+        this.engineData.pathTyped("inlinePlugins", {}).set(plugin.config.namespace, plugin);
     }
 }

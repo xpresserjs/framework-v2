@@ -1,7 +1,7 @@
 import { BootCycleFunction } from "../../engines/BootCycleEngine.js";
 import InXpresserError from "../../errors/InXpresserError.js";
 import { __dirname } from "../../functions/path.js";
-import BaseModule, { BaseModuleConfig } from "../BaseModule.js";
+import BaseModule, { type BaseModuleConfig } from "../BaseModule.js";
 import { CliEngine } from "./CliEngine.js";
 
 /**

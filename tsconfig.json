@@ -2,11 +2,11 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "declaration": true,
     "isolatedModules": true,
     "outDir": "./build",
     "strict": true,
-    "moduleResolution": "Node16",
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -22,7 +22,9 @@
       "@types/node",
       "@types/fs-extra",
       "@types/lodash"
-    ]
+    ],
+    "allowImportingTsExtensions": false,
+    "verbatimModuleSyntax": false
   },
   "exclude": [
     "./node_modules",

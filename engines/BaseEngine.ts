@@ -96,6 +96,7 @@ export default class BaseEngine<MemoryData extends OC_TObject = Record<string, a
                 value: engines.path(name)
             });
         }
+
         return this.memory as ObjectCollectionTyped<MemoryData>;
     }
 
@@ -104,6 +105,16 @@ export default class BaseEngine<MemoryData extends OC_TObject = Record<string, a
      * @param $
      */
     static $engineData<MemoryData extends OC_TObject>($: Xpresser) {
+        const key = this.config.name;
+        const engines = $.engineData.path(`engines`);
+
+        // if engine does not exist throw error
+        if (!engines.has(key)) {
+            throw new InXpresserError(
+                `Engine with name: "${key}" memory data has not been initialized.`
+            );
+        }
+
         return $.engineData
             .path(`engines`)
             .path(this.config.name) as ObjectCollectionTyped<MemoryData>;

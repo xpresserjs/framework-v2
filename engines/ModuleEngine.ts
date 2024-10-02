@@ -1,5 +1,5 @@
 import chalk from "chalk";
-import BaseEngine, { BaseEngineConfig } from "./BaseEngine.js";
+import BaseEngine, { type BaseEngineConfig } from "./BaseEngine.js";
 import InXpresserError from "../errors/InXpresserError.js";
 import BaseModule, { type Modules } from "../modules/BaseModule.js";
 import type { BootCycle } from "./BootCycleEngine.js";
@@ -184,7 +184,7 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
     /**
      * Loads and initializes the current active module.
      */
-    public async initializeActiveModule() {
+    public async initializeActiveModule(): Promise<boolean> {
         const activeModule = this.getActive() as Modules.Keywords;
         if (!activeModule) {
             return this.#noActiveModuleError();
@@ -194,7 +194,8 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
         try {
             this.has(activeModule, true);
         } catch (e: any) {
-            return this.$.console.logErrorAndExit(e.message);
+            this.$.console.logError(e.message);
+            return false;
         }
 
         // Load module
@@ -208,6 +209,8 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
 
         // Set as active instance
         this.activeInstance = module;
+
+        return true;
     }
 
     /**
@@ -239,7 +242,7 @@ export default class ModuleEngine extends BaseEngine<ModuleEngineMemoryData> {
             this.$.console.spacing();
         }
 
-        return this.$.exit();
+        return false;
     }
 
     /**
