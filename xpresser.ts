@@ -448,7 +448,8 @@ export class Xpresser {
         // Set started to true
         this.#has.started = true;
 
-        await this.modules.initializeActiveModule();
+        const initialized = this.modules.initializeActiveModule();
+        if (!initialized) return this;
 
         // Set registered flag
         this.#has.registeredModules = true;
