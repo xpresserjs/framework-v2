@@ -5,6 +5,9 @@ This module has the launch keyword `cli`
 
 ```sh
 node app.js cli
+
+# Or TypeScript
+npx tsx app.ts cli
 ```
 
 It creates a command line framework where you can define commands or add a file of commands.

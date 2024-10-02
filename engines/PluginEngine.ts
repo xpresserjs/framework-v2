@@ -237,9 +237,6 @@ export default class PluginEngine extends BaseEngine<EngineMemoryData> {
                 }
             }
         }
-
-        // Process Inline Plugins
-        await this.#useInlinePlugins();
     }
 
     #loadPluginUseData(pluginPath: string): any {
@@ -397,9 +394,9 @@ export default class PluginEngine extends BaseEngine<EngineMemoryData> {
     }
 
     /**
-     * Process inline plugins
+     * Load Inline Plugins
      */
-    async #useInlinePlugins() {
+    async loadInlinePlugins() {
         // get inline plugins
         const inlinePlugins = this.$.engineData.data.inlinePlugins;
 

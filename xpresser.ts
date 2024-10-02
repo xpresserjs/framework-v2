@@ -545,7 +545,10 @@ export class Xpresser {
         // Load Plugins
         const { default: PluginEngine } = await import("./engines/PluginEngine.js");
         const pluginEngine = this.engine(PluginEngine);
+
         await pluginEngine.loadPluginsFromJson();
+        await pluginEngine.loadInlinePlugins();
+
         this.#has.loadedPlugins = true;
 
         return this;

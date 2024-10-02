@@ -65,6 +65,6 @@ Unfortunately we had to drop that support and use the keyword for something else
 // Before
 const lodash = $.modules.lodash()
 
-// Now, you have import it.
+// Now, you have to import it.
 import lodash from 'lodash';
 ```
